@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fake Tracker Pro - Prop Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #09090b;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            overscroll-behavior: none;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #viewport {
+            position: relative;
+            flex-grow: 1;
+            overflow: hidden;
+            background: #000000;
+            touch-action: none;
+        }
+        #map-wrapper {
+            position: absolute;
+            transform-origin: 0 0;
+            will-change: transform;
+            z-index: 10;
+        }
+        .smooth-move #map-wrapper {
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+        #uploaded-map {
+            display: block;
+            user-select: none;
+            -webkit-user-drag: none;
+            max-width: none !important;
+            z-index: 11;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 12;
+        }
+        .controls {
+            background: #18181b;
+            padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            border-top: 1px solid #27272a;
+            z-index: 100;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
+        }
+        
+        .tracker-icon {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            display: none;
+            width: 28px;
+            height: 28px;
+            pointer-events: none;
+        }
+        .tracker-base {
+            background: #3b82f6;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        }
+        .pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 50%;
+            animation: pulse-animation 1.8s infinite ease-out;
+            top: 0;
+            left: 0;
+        }
+        @keyframes pulse-animation {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .btn-mode {
+            @apply flex-1 py-4 text-[10px] uppercase tracking-widest font-black rounded-xl border transition-all flex flex-col items-center gap-2;
+        }
+        .mode-off { @apply bg-zinc-900 border-zinc-800 text-zinc-500 opacity-60; }
+        .mode-on-move { @apply bg-amber-500/20 border-amber-500 text-amber-500 opacity-100; }
+        .mode-on-draw { @apply bg-blue-500/20 border-blue-500 text-blue-500 opacity-100; }
+        
+        input[type="range"] { 
+            -webkit-appearance: none;
+            @apply h-2 bg-zinc-800 rounded-lg overflow-hidden;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            @apply w-6 h-6 bg-zinc-100 rounded-full border-4 border-zinc-800;
+        }
+
+        .mode-switch {
+            position: relative;
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            cursor: pointer;
+        }
+        .mode-switch-bg {
+            position: absolute;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: #3b82f6;
+            border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .mode-switch-option {
+            flex: 1;
+            z-index: 1;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #52525b;
+            transition: color 0.2s;
+        }
+        .mode-switch-option.active { color: white; }
+
+        #ios-notice {
+            position: fixed;
+            top: env(safe-area-inset-top, 20px);
+            left: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ios-notice">TIK OP 'DEEL' > 'ZET OP BEGINSCHERM' VOOR FULLSCREEN</div>
+
+    <div class="p-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[100] pt-[env(safe-area-inset-top, 16px)]">
+        <div>
+            <h1 id="app-title" class="text-xl font-black italic tracking-tighter text-zinc-200 uppercase">Tracker <span class="text-blue-500">PRO</span></h1>
+            <p id="status" class="text-[9px] text-zinc-500 font-mono uppercase tracking-[0.2em]">Offline</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="toggleFullscreen()" class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 active:scale-90 transition-transform">
+                <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            </button>
+            <button onclick="handleMasterReset()" class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 active:scale-90 transition-transform">
+                <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4V4zm0 0l16 16m0-16L4 20"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="viewport">
+        <!-- Startscherm -->
+        <div id="intro-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-[80] bg-zinc-950 hidden">
+            <div class="w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center mb-8 relative">
+                <div class="absolute inset-0 bg-blue-500/20 rounded-full animate-ping"></div>
+                <svg class="w-16 h-16 text-blue-500 relative z-10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+            </div>
+            <h2 class="text-3xl font-black mb-3 uppercase tracking-tighter">Systeem Gereed</h2>
+            <p class="text-zinc-500 mb-10 text-xs font-bold uppercase tracking-widest max-w-[200px] leading-loose">Klaar om locatie data te versturen</p>
+            <button onclick="activatePropTracker()" class="w-full max-w-xs bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-black shadow-2xl shadow-blue-900/40 transition-all active:scale-95 uppercase tracking-[0.3em] text-sm">
+                Activeer Beacon
+            </button>
+        </div>
+
+        <!-- Kaart Selectie -->
+        <div id="config-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-[70] bg-zinc-950">
+            <div class="mb-10 opacity-40">
+                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em]">Geen kaart geladen</p>
+            </div>
+            <button onclick="document.getElementById('file-input').click()" class="w-full max-w-xs bg-zinc-100 text-zinc-900 py-6 rounded-2xl font-black transition-all active:scale-95 text-xs uppercase tracking-[0.3em]">
+                Selecteer Kaart
+            </button>
+        </div>
+
+        <!-- Map Container -->
+        <div id="map-wrapper" style="display: none;">
+            <img id="uploaded-map" alt="Kaart">
+            <canvas id="route-canvas"></canvas>
+            <div id="tracker" class="tracker-icon">
+                <div class="pulse"></div>
+                <div class="tracker-base"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interface -->
+    <div id="controls-container" class="controls space-y-5 hidden">
+        
+        <div class="mode-switch" onclick="toggleSimType()">
+            <div id="mode-slider-bg" class="mode-switch-bg"></div>
+            <div id="opt-static" class="mode-switch-option active">Vast Punt</div>
+            <div id="opt-route" class="mode-switch-option">Route</div>
+        </div>
+
+        <div class="flex gap-4">
+            <button id="btn-move" onclick="setMode('move')" class="btn-mode mode-off">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                Pan
+            </button>
+            <button id="btn-draw" onclick="setMode('draw')" class="btn-mode mode-off">
+                <svg id="draw-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="draw-label">Zet Punt</span>
+            </button>
+            <button onclick="clearRoute()" class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-500 active:text-red-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+        </div>
+
+        <div class="space-y-4 pt-2">
+            <div class="space-y-2">
+                <div class="flex justify-between text-[9px] text-zinc-500 uppercase font-black tracking-widest">
+                    <span>Inzoomen</span>
+                    <span id="zoom-val" class="text-blue-500">1.0x</span>
+                </div>
+                <input type="range" id="zoom-slider" min="0.05" max="3" step="0.01" value="1" class="w-full" oninput="updateZoom(this.value)">
+            </div>
+            
+            <div id="speed-control" class="space-y-2 opacity-20 pointer-events-none transition-opacity">
+                <div class="flex justify-between text-[9px] text-zinc-500 uppercase font-black tracking-widest">
+                    <span>Snelheid</span>
+                    <span id="speed-val" class="text-blue-500">80 px/s</span>
+                </div>
+                <input type="range" id="speed-slider" min="10" max="600" value="80" class="w-full" oninput="updateSpeed(this.value)">
+            </div>
+        </div>
+
+        <div class="flex gap-6 justify-center">
+            <label class="flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                <input type="checkbox" id="ping-mode" class="w-5 h-5 rounded-md bg-zinc-900 border-zinc-800 accent-blue-500"> PING
+            </label>
+            <label class="flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                <input type="checkbox" id="auto-center" checked class="w-5 h-5 rounded-md bg-zinc-900 border-zinc-800 accent-blue-500"> CENTER
+            </label>
+        </div>
+
+        <button onclick="finishConfig()" id="start-btn" class="w-full bg-blue-600 text-white py-6 rounded-2xl font-black uppercase tracking-[0.4em] disabled:opacity-20 active:scale-95 shadow-xl shadow-blue-900/20 text-xs" disabled>
+            BEVESTIG CONFIGURATIE
+        </button>
+    </div>
+
+    <input type="file" id="file-input" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        const configScreen = document.getElementById('config-screen');
+        const viewport = document.getElementById('viewport');
+        const mapWrapper = document.getElementById('map-wrapper');
+        const uploadedMap = document.getElementById('uploaded-map');
+        const canvas = document.getElementById('route-canvas');
+        const ctx = canvas.getContext('2d');
+        const tracker = document.getElementById('tracker');
+        const startBtn = document.getElementById('start-btn');
+        const btnMove = document.getElementById('btn-move');
+        const btnDraw = document.getElementById('btn-draw');
+        const controlsContainer = document.getElementById('controls-container');
+        const statusText = document.getElementById('status');
+        const appTitle = document.getElementById('app-title');
+        const iosNotice = document.getElementById('ios-notice');
+        
+        const autoCenterCheckbox = document.getElementById('auto-center');
+        const pingModeCheckbox = document.getElementById('ping-mode');
+        const zoomSlider = document.getElementById('zoom-slider');
+
+        let currentMode = 'none';
+        let simType = 'static'; 
+        let points = [];
+        let isSimulating = false;
+        let isPropActive = false; 
+        let scale = 1;
+        let posX = 0;
+        let posY = 0;
+        let speed = 80;
+        let targetPointIndex = 1;
+        let progress = 0;
+        let animationId = null;
+        let lastTimestamp = 0;
+
+        let isDragging = false;
+        let startX, startY;
+
+        function toggleFullscreen() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else {
+                iosNotice.style.display = 'block';
+                setTimeout(() => { iosNotice.style.display = 'none'; }, 4000);
+            }
+        }
+
+        function toggleSimType() {
+            simType = simType === 'static' ? 'route' : 'static';
+            const sliderBg = document.getElementById('mode-slider-bg');
+            const optStatic = document.getElementById('opt-static');
+            const optRoute = document.getElementById('opt-route');
+            const speedControl = document.getElementById('speed-control');
+            const drawLabel = document.getElementById('draw-label');
+
+            if (simType === 'static') {
+                sliderBg.style.transform = 'translateX(0%)';
+                optStatic.classList.add('active');
+                optRoute.classList.remove('active');
+                speedControl.style.opacity = '0.2';
+                speedControl.style.pointerEvents = 'none';
+                drawLabel.innerText = "Zet Punt";
+            } else {
+                sliderBg.style.transform = 'translateX(100%)';
+                optStatic.classList.remove('active');
+                optRoute.classList.add('active');
+                speedControl.style.opacity = '1';
+                speedControl.style.pointerEvents = 'all';
+                drawLabel.innerText = "Teken Route";
+            }
+            clearRoute();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedMap.onload = () => {
+                    configScreen.classList.add('hidden');
+                    controlsContainer.classList.remove('hidden');
+                    mapWrapper.style.display = 'block';
+                    
+                    canvas.width = uploadedMap.naturalWidth;
+                    canvas.height = uploadedMap.naturalHeight;
+                    
+                    resetView();
+                    setMode('move');
+                    statusText.innerText = "Kalibreren...";
+                };
+                uploadedMap.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setMode(mode) {
+            if (isPropActive) return;
+            currentMode = (currentMode === mode) ? 'none' : mode;
+            btnMove.className = `btn-mode ${currentMode === 'move' ? 'mode-on-move' : 'mode-off'}`;
+            btnDraw.className = `btn-mode ${currentMode === 'draw' ? 'mode-on-draw' : 'mode-off'}`;
+        }
+
+        function getPos(e) {
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: clientX, y: clientY };
+        }
+
+        function startPan(e) {
+            if(currentMode !== 'move') return;
+            isDragging = true;
+            const pos = getPos(e);
+            startX = pos.x - posX;
+            startY = pos.y - posY;
+        }
+
+        function pan(e) {
+            if (!isDragging || currentMode !== 'move') return;
+            if (e.cancelable) e.preventDefault();
+            const pos = getPos(e);
+            posX = pos.x - startX;
+            posY = pos.y - startY;
+            applyTransform();
+        }
+
+        function endPan() { isDragging = false; }
+
+        viewport.addEventListener('mousedown', startPan);
+        window.addEventListener('mousemove', pan);
+        window.addEventListener('mouseup', endPan);
+        viewport.addEventListener('touchstart', startPan, {passive: false});
+        window.addEventListener('touchmove', pan, {passive: false});
+        window.addEventListener('touchend', endPan);
+
+        viewport.addEventListener('click', (e) => {
+            if (isSimulating || currentMode !== 'draw') return;
+            const rect = viewport.getBoundingClientRect();
+            const clickX = (e.clientX - rect.left - posX) / scale;
+            const clickY = (e.clientY - rect.top - posY) / scale;
+            
+            if (simType === 'static') {
+                points = [{ x: clickX, y: clickY }];
+            } else {
+                points.push({ x: clickX, y: clickY });
+            }
+            
+            drawRoute();
+            startBtn.disabled = simType === 'static' ? points.length < 1 : points.length < 2;
+        });
+
+        function drawRoute(hide = false) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (points.length < 1 || hide) return;
+
+            if (simType === 'static') {
+                ctx.beginPath();
+                ctx.arc(points[0].x, points[0].y, 10/scale, 0, Math.PI*2);
+                ctx.fillStyle = '#3b82f6';
+                ctx.fill();
+            } else {
+                ctx.beginPath();
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 6 / scale;
+                ctx.lineCap = 'round';
+                ctx.setLineDash([15/scale, 10/scale]);
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+                ctx.stroke();
+            }
+        }
+
+        function animate(timestamp) {
+            if (!isPropActive || simType === 'static') return;
+            const deltaTime = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            const p1 = points[targetPointIndex - 1];
+            const p2 = points[targetPointIndex];
+            if (!p1 || !p2) return;
+
+            const dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+
+            if (dist > 0) {
+                progress += (speed * deltaTime) / dist;
+            } else {
+                progress = 1;
+            }
+
+            if (progress >= 1) {
+                progress = 0;
+                targetPointIndex++;
+                if (targetPointIndex >= points.length) targetPointIndex = 1; 
+            }
+
+            let curX, curY;
+            if (pingModeCheckbox.checked) {
+                curX = p1.x; curY = p1.y;
+            } else {
+                curX = p1.x + (p2.x - p1.x) * progress;
+                curY = p1.y + (p2.y - p1.y) * progress;
+            }
+
+            updateTrackerPosition(curX, curY);
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function updateTrackerPosition(x, y) {
+            tracker.style.left = `${x}px`;
+            tracker.style.top = `${y}px`;
+
+            if (autoCenterCheckbox.checked) {
+                posX = (viewport.clientWidth / 2) - (x * scale);
+                posY = (viewport.clientHeight / 2) - (y * scale);
+                applyTransform();
+            }
+        }
+
+        function updateZoom(val) {
+            scale = parseFloat(val);
+            document.getElementById('zoom-val').innerText = scale.toFixed(2) + 'x';
+            applyTransform();
+            drawRoute();
+        }
+
+        function updateSpeed(val) {
+            speed = parseInt(val);
+            document.getElementById('speed-val').innerText = `${val} px/s`;
+        }
+
+        function applyTransform() {
+            mapWrapper.style.transform = `translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+        }
+
+        function resetView() {
+            scale = 0.4;
+            posX = (viewport.clientWidth - (uploadedMap.naturalWidth * scale)) / 2;
+            posY = (viewport.clientHeight - (uploadedMap.naturalHeight * scale)) / 2;
+            zoomSlider.value = scale;
+            updateZoom(scale);
+        }
+
+        function clearRoute() {
+            points = [];
+            startBtn.disabled = true;
+            drawRoute();
+        }
+
+        function finishConfig() {
+            controlsContainer.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            appTitle.innerHTML = 'GPS <span class="text-blue-500">ENCRYPTED</span>';
+            statusText.innerText = "Verbinding beveiligd";
+            isSimulating = true;
+            setMode('none');
+        }
+
+        function activatePropTracker() {
+            introScreen.classList.add('hidden');
+            statusText.innerText = "Locatie wordt gedeeld...";
+            drawRoute(true); 
+            tracker.style.display = 'block';
+            targetPointIndex = 1;
+            progress = 0;
+            lastTimestamp = performance.now();
+            if (!pingModeCheckbox.checked && simType === 'route') viewport.classList.add('smooth-move');
+            isPropActive = true;
+            if (simType === 'route') requestAnimationFrame(animate);
+            else updateTrackerPosition(points[0].x, points[0].y);
+        }
+
+        function handleMasterReset() {
+            if (!isSimulating) {
+                resetView();
+            } else {
+                if (animationId) cancelAnimationFrame(animationId);
+                viewport.classList.remove('smooth-move');
+                isPropActive = false;
+                tracker.style.display = 'none';
+                introScreen.classList.remove('hidden');
+                statusText.innerText = "Beacon onderbroken";
+            }
+        }
+    </script>
+</body>
+</html>

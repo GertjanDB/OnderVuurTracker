@@ -13,8 +13,8 @@
             --text-color: #ffffff;
             --border-color: #27272a;
             --dot-size: 24px;
-            --pointer-active: #a855f7; /* Fel Paars */
-            --pointer-dimmed: rgba(168, 85, 247, 0.3); /* Licht Paars */
+            --pointer-active: #a855f7;
+            --pointer-dimmed: rgba(168, 85, 247, 0.3);
         }
 
         body {
@@ -30,7 +30,6 @@
             touch-action: none;
         }
 
-        /* Viewport & Map */
         #viewport {
             position: absolute;
             inset: 0;
@@ -62,7 +61,6 @@
             z-index: 2;
         }
 
-        /* Richtkruis in het midden */
         #center-crosshair {
             position: absolute;
             top: 50%;
@@ -90,7 +88,6 @@
             box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
         }
 
-        /* Tracker Dot */
         .tracker-base {
             background: var(--tracker-color);
             border: 2px solid white;
@@ -128,7 +125,6 @@
             100% { transform: scale(3.5); opacity: 0; }
         }
 
-        /* Dest Marker */
         #dest-marker {
             position: absolute;
             transform: translate(-50%, -100%);
@@ -171,7 +167,6 @@
 </head>
 <body>
 
-    <!-- Header -->
     <div id="main-header" class="p-3 px-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[200] relative pt-[env(safe-area-inset-top, 12px)]">
         <div class="flex-grow">
             <h1 class="text-base font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
@@ -182,15 +177,10 @@
         </div>
     </div>
 
-    <!-- MAIN APP LAYOUT -->
     <div id="app-content" class="flex-grow flex flex-col overflow-hidden">
         
-        <!-- TOP: Content Area -->
         <div id="preview-area" class="flex-grow relative bg-black overflow-hidden transition-all duration-300 min-h-0">
             
-            <!-- ====== PROP UI OVERLAYS ====== -->
-            
-            <!-- Prop: Top Bar -->
             <div id="prop-top-bar" class="absolute top-0 left-0 right-0 p-3 pt-[calc(12px+env(safe-area-inset-top,0px))] flex items-center gap-2.5 z-[180] hidden-ui bg-gradient-to-b from-black/80 to-transparent">
                 <h1 class="text-[14px] font-black italic tracking-tighter text-white mr-1 drop-shadow-md">TRACKER<span class="text-blue-500">PRO</span></h1>
                 
@@ -199,29 +189,25 @@
                     <span class="text-[10px] text-zinc-400 ml-2 uppercase font-bold tracking-widest text-ellipsis overflow-hidden whitespace-nowrap">Zoeken...</span>
                 </div>
 
-                <!-- People Icon -->
                 <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </button>
 
-                <!-- Instellingen Icon (Reset) -->
                 <button onclick="resetToConfig()" class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg flex-shrink-0">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path></svg>
                 </button>
             </div>
 
-            <!-- Prop: Side Actieknoppen -->
             <div id="prop-side-buttons" class="absolute right-3 top-[100px] flex flex-col gap-2.5 z-[180] hidden-ui">
                 <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                 </button>
                 <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
                 </button>
                 <button class="w-8 h-8 rounded-full bg-red-600/90 backdrop-blur-md border border-red-400 flex items-center justify-center text-white font-black text-[9px] active:scale-95 shadow-lg shadow-red-900/50">SOS</button>
             </div>
 
-            <!-- Shield Standby Center Overlay -->
             <div id="shield-standby-center" class="absolute inset-0 z-[150] flex flex-col items-center justify-center bg-zinc-950 hidden-ui">
                 <div class="w-20 h-20 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
                     <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -233,16 +219,13 @@
                 </button>
             </div>
 
-            <!-- Richtkruis -->
             <div id="center-crosshair"></div>
 
-            <!-- Zoom Controls -->
             <div id="zoom-ctrls" class="absolute top-3 right-3 z-[100] flex flex-col gap-1.5">
                 <button onclick="changeZoom(0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">+</button>
                 <button onclick="changeZoom(-0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">-</button>
             </div>
 
-            <!-- Viewport (De Kaart) -->
             <div id="viewport">
                 <div id="map-wrapper">
                     <img id="map-img" alt="Kaart">
@@ -252,7 +235,6 @@
                 </div>
             </div>
 
-            <!-- Live Prop Overlay: WATCHER MODE -->
             <div id="prop-bottom-watcher" class="absolute bottom-0 left-0 right-0 p-3 z-[170] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
                 <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0">
@@ -272,7 +254,6 @@
                 </div>
             </div>
 
-            <!-- Live Prop Overlay: SHIELD MODE -->
             <div id="prop-bottom-shield" class="absolute bottom-0 left-0 right-0 p-3 z-[170] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
                 <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 flex justify-between items-center shadow-2xl">
                     <div class="flex items-center gap-2.5">
@@ -297,15 +278,16 @@
 
         </div>
 
-        <!-- BOTTOM: Config Panel -->
         <div id="config-container" class="flex-none bg-[var(--panel-bg)] border-t border-zinc-800 p-3 flex flex-col gap-2.5 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
             
+            <div class="text-[9px] text-zinc-500 text-right font-mono tracking-wider mb-1">v1.0.6</div>
+
             <button onclick="toggleFullscreen()" class="w-full py-2 bg-zinc-900 text-zinc-400 rounded-lg text-[9px] font-black uppercase border border-zinc-800 active:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
                 ⛶ Schakel Fullscreen
             </button>
 
             <button onclick="document.getElementById('map-upload').click()" class="w-full py-2 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[9px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 Kaart Uploaden / Wijzigen
             </button>
 
@@ -332,7 +314,6 @@
                         <option id="opt-route" value="route">🗺️ Teken Volgroute</option>
                     </select>
                 </div>
-                <!-- Checkbox punt vastzetten -->
                 <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 p-2 rounded-lg">
                     <input type="checkbox" id="point-toggle" disabled onchange="togglePoint(this.checked)" class="w-3.5 h-3.5 accent-blue-600 rounded cursor-not-allowed">
                     <span id="point-label" class="text-[8px] font-black uppercase text-zinc-600">Vast punt</span>
@@ -341,9 +322,9 @@
             </div>
 
             <div id="dest-config" class="grid grid-cols-3 gap-2">
-                <button id="btn-dest-none" onclick="setDest('none')" class="py-1.5 bg-zinc-800 border-2 border-white rounded-lg text-[8px] font-bold text-white uppercase text-center">Geen</button>
-                <button id="btn-dest-home" onclick="setDest('home')" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase text-center">🏠 Home</button>
-                <button onclick="document.getElementById('dest-upload').click()" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase text-center">📸 Foto</button>
+                <button id="btn-dest-none" onclick="setDest('none')" class="py-1.5 bg-zinc-800 border-2 border-white rounded-lg text-[8px] font-bold text-white uppercase">Geen Icoon</button>
+                <button id="btn-dest-home" onclick="setDest('home')" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">🏠 Home</button>
+                <button onclick="document.getElementById('dest-upload').click()" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">📸 Foto</button>
             </div>
 
             <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800 flex flex-col gap-2">
@@ -372,24 +353,34 @@
         </div>
     </div>
 
-    <!-- Start Overlay -->
-    <div id="intro-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-[300] bg-zinc-950">
-        <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.817l7-2a2 2 0 011.106 0l7 2A2 2 0 0121 5.618v9.764a2 2 0 01-1.553 1.898L15 20V13H9v7z"></path></svg>
-        </div>
-        <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2">SafeTrace Pro v1.0.5</p>
-        <button onclick="document.getElementById('map-upload').click()" class="bg-blue-600 hover:bg-blue-500 px-8 py-3.5 rounded-xl font-bold shadow-xl text-white text-sm">KAART LADEN</button>
-    </div>
-
     <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
     <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
 
     <script>
         const STATE = {
-            mode: 'watcher', tool: 'pan', person: 'maaike', statusText: 'Thuis', updateTime: '09:10',
-            destType: 'none', destImg: null, points: [], fixedPoint: null, showPoint: false,
-            scale: 1, posX: 0, posY: 0, size: 24, speed: 50, autoCenter: false, isPlayingPreview: false, isLive: false,
-            animProgress: 0, targetIndex: 1, lastTime: 0, animId: null, isShieldActive: false,
+            mode: 'watcher',
+            tool: 'pan',
+            person: 'maaike',
+            statusText: 'Thuis',
+            updateTime: '09:10',
+            destType: 'none',
+            destImg: null,
+            points: [],
+            fixedPoint: null,
+            showPoint: false,
+            scale: 1,
+            posX: 0,
+            posY: 0,
+            size: 24,
+            speed: 50,
+            autoCenter: false,
+            isPlayingPreview: false,
+            isLive: false,
+            animProgress: 0,
+            targetIndex: 1,
+            lastTime: 0,
+            animId: null,
+            isShieldActive: false,
             pointReady: false
         };
 
@@ -413,45 +404,40 @@
         const crosshair = document.getElementById('center-crosshair');
 
         function toggleFullscreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => console.error(e));
-            else document.exitFullscreen();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
-        // VERBETERDE UPLOAD LOGICA (ROBUUST VOOR GITHUB)
         function handleMapUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
+            
             reader.onload = function(e) {
                 const imgData = e.target.result;
-                // Eerst de afbeelding laden in een tijdelijk object
                 const tempImg = new Image();
                 tempImg.onload = function() {
-                    // Pas als we de afmetingen hebben, de UI updaten
                     mapImg.src = imgData;
-                    
                     document.getElementById('intro-screen').classList.add('hidden-ui');
                     
-                    // Kleine vertraging om DOM de kans te geven viewport te renderen op mobiel/GitHub
                     setTimeout(() => {
-                        const vRect = viewport.getBoundingClientRect();
-                        const vW = vRect.width || window.innerWidth;
-                        const vH = vRect.height || (window.innerHeight - 300); // Fallback height
-
+                        const rect = viewport.getBoundingClientRect();
                         canvas.width = tempImg.naturalWidth;
                         canvas.height = tempImg.naturalHeight;
                         
-                        // Schaal: Zorg dat afbeelding minstens viewport vult
-                        const sW = vW / tempImg.naturalWidth;
-                        const sH = vH / tempImg.naturalHeight;
-                        STATE.scale = Math.max(sW, sH); 
+                        const scaleW = rect.width / tempImg.naturalWidth;
+                        const scaleH = rect.height / tempImg.naturalHeight;
+                        STATE.scale = Math.max(scaleW, scaleH);
                         
-                        // Exact centreren
-                        STATE.posX = (vW - tempImg.naturalWidth * STATE.scale) / 2;
-                        STATE.posY = (vH - tempImg.naturalHeight * STATE.scale) / 2;
+                        STATE.posX = (rect.width - tempImg.naturalWidth * STATE.scale) / 2;
+                        STATE.posY = (rect.height - tempImg.naturalHeight * STATE.scale) / 2;
                         
-                        STATE.points = []; 
+                        STATE.points = [];
                         STATE.fixedPoint = null;
                         STATE.showPoint = false;
                         resetPointPlacement();
@@ -460,20 +446,22 @@
                         updateThemeColors();
                         drawMap();
                         checkReadyState();
-                    }, 50);
+                    }, 80);
                 };
                 tempImg.src = imgData;
             };
             reader.readAsDataURL(file);
-            // Reset input zodat hetzelfde bestand opnieuw gekozen kan worden
-            event.target.value = '';
+            event.target.value = ''; // Reset input
         }
 
         function handleDestUpload(event) {
             const file = event.target.files[0];
-            if(!file) return;
+            if (!file) return;
             const reader = new FileReader();
-            reader.onload = (e) => { STATE.destImg = e.target.result; setDest('img'); };
+            reader.onload = (e) => {
+                STATE.destImg = e.target.result;
+                setDest('img');
+            };
             reader.readAsDataURL(file);
         }
 
@@ -497,10 +485,9 @@
             crosshair.classList.add('active');
         }
 
-        // TOUCH EVENTS (INCL PINCH TO ZOOM)
+        // TOUCH-EVENTS
         viewport.addEventListener('touchstart', (e) => {
             if (STATE.isPlayingPreview || STATE.isLive) return;
-            
             if (e.touches.length === 2) {
                 isDragging = false;
                 initialPinchDist = Math.hypot(
@@ -510,74 +497,74 @@
             } else if (e.touches.length === 1) {
                 startInteraction(e.touches[0].clientX, e.touches[0].clientY);
             }
-        }, {passive: false});
+        }, { passive: false });
 
         window.addEventListener('touchmove', (e) => {
             if (STATE.isPlayingPreview || STATE.isLive) return;
-
             if (e.touches.length === 2 && initialPinchDist !== null) {
                 if(STATE.showPoint) return;
                 const currentDist = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
-                const zoomFactor = (currentDist - initialPinchDist) / 100;
+                const zoomFactor = (currentDist - initialPinchDist) / 150;
                 changeZoom(zoomFactor);
                 initialPinchDist = currentDist;
-                resetPointPlacement(); 
+                resetPointPlacement();
             } else if (e.touches.length === 1) {
                 moveInteraction(e.touches[0].clientX, e.touches[0].clientY);
             }
-        }, {passive: false});
+        }, { passive: false });
 
         window.addEventListener('touchend', () => {
-            if (!hasMovedSinceStart && isDragging) {
-                enablePointPlacement();
-            }
+            if (!hasMovedSinceStarted && isDragging) enablePointPlacement();
             isDragging = false;
             initialPinchDist = null;
         });
 
-        // MOUSE EVENTS
-        viewport.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
-        window.addEventListener('mousemove', (e) => moveInteraction(e.clientX, e.clientY));
+        // MOUSE-EVENTS
+        let hasSinceStarted = false;
+        viewport.addEventListener('mousedown', (e) => {
+            hasSinceStarted = false;
+            startInteraction(e.clientX, e.clientY);
+        });
+        window.addEventListener('mousemove', (e) => {
+            moveInteraction(e.clientX, e.clientY);
+        });
         window.addEventListener('mouseup', () => {
-            if (!hasMovedSinceStart && isDragging) {
-                enablePointPlacement();
-            }
+            if (!hasSinceStarted && isDragging) enablePointPlacement();
             isDragging = false;
         });
 
         function startInteraction(x, y) {
-            isDragging = true; 
-            hasMovedSinceStart = false;
-            startX = x - STATE.posX; 
+            isDragging = true;
+            hasSinceStarted = false;
+            startX = x - STATE.posX;
             startY = y - STATE.posY;
-            
+
             if (STATE.tool === 'pan' && !STATE.showPoint) {
                 viewport.style.cursor = 'grabbing';
             } else if (STATE.tool === 'route') {
                 const mapCoords = getMapCoords(x, y);
                 STATE.points.push(mapCoords);
-                drawMap(); 
+                drawMap();
                 checkReadyState();
             }
         }
 
         function moveInteraction(x, y) {
             if (!isDragging) return;
-            
+
             const dx = Math.abs(x - (startX + STATE.posX));
             const dy = Math.abs(y - (startY + STATE.posY));
-            if (dx > 5 || dy > 5) {
-                hasMovedSinceStart = true;
-                if (STATE.pointReady || STATE.showPoint) {
-                    resetPointPlacement();
-                }
+
+            if (dx > 4 || dy > 4) {
+                hasSinceStarted = true;
+                if (STATE.pointReady || STATE.showPoint) resetPointPlacement();
             }
 
             if (STATE.tool === 'pan' && !STATE.showPoint) {
-                STATE.posX = x - startX; 
+                STATE.posX = x - startX;
                 STATE.posY = y - startY;
                 applyTransform();
             }
@@ -586,13 +573,15 @@
         function togglePoint(checked) {
             STATE.showPoint = checked;
             if (checked) {
-                const vRect = viewport.getBoundingClientRect();
+                const rect = viewport.getBoundingClientRect();
                 STATE.fixedPoint = {
-                    x: (vRect.width / 2 - STATE.posX) / STATE.scale,
-                    y: (vRect.height / 2 - STATE.posY) / STATE.scale
+                    x: (rect.width / 2 - STATE.posX) / STATE.scale,
+                    y: (rect.height / 2 - STATE.posY) / STATE.scale
                 };
+                viewport.style.cursor = 'not-allowed';
             } else {
                 STATE.fixedPoint = null;
+                viewport.style.cursor = 'default';
             }
             drawMap();
             checkReadyState();
@@ -600,7 +589,10 @@
 
         function getMapCoords(clientX, clientY) {
             const rect = mapWrapper.getBoundingClientRect();
-            return { x: (clientX - rect.left) / STATE.scale, y: (clientY - rect.top) / STATE.scale };
+            return {
+                x: (clientX - rect.left) / STATE.scale,
+                y: (clientY - rect.top) / STATE.scale
+            };
         }
 
         function applyTransform() {
@@ -610,35 +602,43 @@
         function changeZoom(delta) {
             if(STATE.showPoint) return;
             const oldScale = STATE.scale;
-            STATE.scale = Math.max(0.01, Math.min(10, STATE.scale + delta));
+            STATE.scale = Math.max(0.02, Math.min(10, STATE.scale + delta));
             const ratio = STATE.scale / oldScale;
-            const vRect = viewport.getBoundingClientRect();
-            
-            STATE.posX = (vRect.width / 2) - ((vRect.width / 2) - STATE.posX) * ratio;
-            STATE.posY = (vRect.height / 2) - ((vRect.height / 2) - STATE.posY) * ratio;
-            
-            resetPointPlacement(); 
-            applyTransform(); 
+            const rect = viewport.getBoundingClientRect();
+
+            STATE.posX = (rect.width / 2) - ((rect.width / 2) - STATE.posX) * ratio;
+            STATE.posY = (rect.height / 2) - ((rect.height / 2) - STATE.posY) * ratio;
+
+            resetPointPlacement();
+            applyTransform();
             drawMap();
         }
 
-        function setTool(tool) { 
-            STATE.tool = tool; 
+        function setTool(tool) {
+            STATE.tool = tool;
             document.getElementById('tool-select').value = tool;
+            viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
         }
 
         function updateMode() {
             const isShield = document.getElementById('app-mode').value === 'shield';
             STATE.mode = document.getElementById('app-mode').value;
+
             document.getElementById('dest-config').style.display = isShield ? 'none' : 'grid';
             document.getElementById('speed-config').style.visibility = isShield ? 'hidden' : 'visible';
             document.getElementById('watcher-extra-config').style.display = isShield ? 'none' : 'grid';
             document.getElementById('opt-route').style.display = isShield ? 'none' : 'block';
+
             if (isShield && STATE.tool === 'route') setTool('pan');
-            updateThemeColors(); drawMap();
+            updateThemeColors();
+            drawMap();
         }
 
-        function updatePerson() { STATE.person = document.getElementById('person-select').value; updateThemeColors(); drawMap(); }
+        function updatePerson() {
+            STATE.person = document.getElementById('person-select').value;
+            updateThemeColors();
+            drawMap();
+        }
 
         function updateThemeColors() {
             const color = COLORS[STATE.person];
@@ -646,21 +646,28 @@
             document.getElementById('btn-live').style.backgroundColor = color;
         }
 
-        function updateSize(val) { STATE.size = val; document.documentElement.style.setProperty('--dot-size', `${val}px`); }
+        function updateSize(val) {
+            STATE.size = val;
+            document.documentElement.style.setProperty('--dot-size', `${val}px`);
+        }
 
         function setDest(type) {
             STATE.destType = type;
             ['none', 'home'].forEach(t => {
                 const btn = document.getElementById(`btn-dest-${t}`);
-                if(btn) { btn.classList.toggle('border-white', t === type); btn.classList.toggle('text-white', t === type); btn.classList.toggle('border-transparent', t !== type); }
+                if (btn) {
+                    btn.classList.toggle('border-white', t === type);
+                    btn.classList.toggle('text-white', t === type);
+                    btn.classList.toggle('border-transparent', t !== type);
+                }
             });
             drawMap();
         }
 
-        function clearMap() { 
-            STATE.points = []; 
+        function clearMap() {
+            STATE.points = [];
             resetPointPlacement();
-            drawMap(); 
+            drawMap();
         }
 
         function checkReadyState() {
@@ -671,58 +678,83 @@
 
         function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length-1] : null);
+            const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
             const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
 
             if (STATE.points.length > 1) {
-                ctx.beginPath(); ctx.strokeStyle = COLORS[STATE.person]; ctx.lineWidth = 6 / STATE.scale;
-                ctx.setLineDash([15/STATE.scale, 10/STATE.scale]);
+                ctx.beginPath();
+                ctx.strokeStyle = COLORS[STATE.person];
+                ctx.lineWidth = 6 / STATE.scale;
+                if (STATE.points.length > 1) ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
                 ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                STATE.points.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
             }
 
             if (shouldShowDot) {
                 trackerDot.style.display = 'block';
                 trackerDot.style.left = activePoint.x + 'px';
                 trackerDot.style.top = activePoint.y + 'px';
-            } else { trackerDot.style.display = 'none'; }
+            } else {
+                trackerDot.style.display = 'none';
+            }
 
             if (STATE.mode !== 'shield' && STATE.destType !== 'none' && activePoint) {
-                destMarker.style.display = 'block'; destMarker.style.left = activePoint.x + 'px'; destMarker.style.top = activePoint.y + 'px';
-                if (STATE.destType === 'home') document.getElementById('dest-icon-container').innerHTML = '🏠';
-                else if (STATE.destImg) document.getElementById('dest-icon-container').innerHTML = `<img src="${STATE.destImg}">`;
-            } else { destMarker.style.display = 'none'; }
+                destMarker.style.display = 'block';
+                destMarker.style.left = activePoint.x + 'px';
+                destMarker.style.top = activePoint.y + 'px';
+                if (STATE.destType === 'home') {
+                    document.getElementById('dest-icon-container').innerHTML = '🏠';
+                } else if (STATE.destImg) {
+                    document.getElementById('dest-icon-container').innerHTML = `<img src="${STATE.destImg}">`;
+                }
+            } else {
+                destMarker.style.display = 'none';
+            }
         }
 
         function togglePreview() {
-            STATE.isPlayingPreview = true; configContainer.classList.add('hidden-ui');
+            STATE.isPlayingPreview = true;
+            configContainer.classList.add('hidden-ui');
             document.getElementById('center-crosshair').classList.add('hidden-ui');
             enablePropOverlays();
+
             if (STATE.mode === 'shield') {
                 document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui'); 
+                document.getElementById('viewport').classList.add('hidden-ui');
                 document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
                 updateShieldBottom(false);
-            } else { startAnimation(); }
+            } else {
+                startAnimation();
+            }
         }
 
         function startLiveMode() {
-            STATE.isLive = true; stopAnimation(); mainHeader.classList.add('hidden-ui'); configContainer.classList.add('hidden-ui');
+            STATE.isLive = true;
+            stopAnimation();
+            
+            mainHeader.classList.add('hidden-ui');
+            configContainer.classList.add('hidden-ui');
             document.getElementById('center-crosshair').classList.add('hidden-ui');
             document.getElementById('zoom-ctrls').classList.add('hidden-ui');
+            
             enablePropOverlays();
+
             if (STATE.mode === 'shield') {
                 document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui'); 
+                document.getElementById('viewport').classList.add('hidden-ui');
                 document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
                 updateShieldBottom(false);
-            } else { mapImg.style.filter = 'saturate(1.2)'; startAnimation(); }
+            } else {
+                mapImg.style.filter = 'saturate(1.2)';
+                startAnimation();
+            }
         }
 
         function activateShieldLive() {
             STATE.isShieldActive = true;
             document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui'); 
+            document.getElementById('viewport').classList.remove('hidden-ui');
             updateShieldBottom(true);
             mapImg.style.filter = 'grayscale(0.4) contrast(1.2)';
             startAnimation();
@@ -731,7 +763,7 @@
         function deactivateShieldLive() {
             STATE.isShieldActive = false;
             document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-            document.getElementById('viewport').classList.add('hidden-ui'); 
+            document.getElementById('viewport').classList.add('hidden-ui');
             updateShieldBottom(false);
             stopAnimation();
             drawMap();
@@ -742,7 +774,7 @@
             const uplink = document.getElementById('shield-uplink-status');
             const stopBtn = document.getElementById('shield-stop-btn');
             const iconCircle = document.getElementById('shield-icon-circle');
-            
+
             if (active) {
                 title.innerText = "Locatie Delen Actief";
                 title.className = "text-[11px] text-white font-black uppercase tracking-widest leading-tight";
@@ -765,7 +797,7 @@
         function enablePropOverlays() {
             document.getElementById('prop-top-bar').classList.remove('hidden-ui');
             document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
-            if(STATE.mode === 'shield') {
+            if (STATE.mode === 'shield') {
                 document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
                 document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
             } else {
@@ -788,18 +820,22 @@
             document.getElementById('viewport').classList.remove('hidden-ui');
             document.getElementById('zoom-ctrls').classList.remove('hidden-ui');
             document.getElementById('center-crosshair').classList.remove('hidden-ui');
-            mapImg.style.filter = 'none'; drawMap();
+            mapImg.style.filter = 'none';
+            drawMap();
         }
 
         function startAnimation() {
             STATE.animProgress = 0; STATE.targetIndex = 1; STATE.lastTime = performance.now();
             const p = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[0] : null);
-            if(STATE.mode === 'shield' || STATE.points.length < 2) {
-                if(p) { updateTrackerLive(p.x, p.y); }
+            if (STATE.mode === 'shield' || STATE.points.length < 2) {
+                if (p) { updateTrackerLive(p.x, p.y); }
             } else { STATE.animId = requestAnimationFrame(animLoop); }
         }
 
-        function stopAnimation() { if (STATE.animId) cancelAnimationFrame(STATE.animId); drawMap(); }
+        function stopAnimation() {
+            if (STATE.animId) cancelAnimationFrame(STATE.animId);
+            drawMap();
+        }
 
         function animLoop(timestamp) {
             if (!STATE.isPlayingPreview && !STATE.isLive) return;

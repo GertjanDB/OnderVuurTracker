@@ -13,6 +13,7 @@
             --text-color: #ffffff;
             --border-color: #27272a;
             --dot-size: 24px;
+            --pointer-color: #a855f7; /* Paars */
         }
 
         body {
@@ -60,14 +61,14 @@
             z-index: 2;
         }
 
-        /* Richtkruis in het midden (alleen in config) */
+        /* Richtkruis in het midden (alleen in config) - Dikker en Paars */
         #center-crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             z-index: 50;
             pointer-events: none;
             display: flex;
@@ -77,10 +78,11 @@
         #center-crosshair::before, #center-crosshair::after {
             content: '';
             position: absolute;
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--pointer-color);
+            box-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
         }
-        #center-crosshair::before { width: 1px; height: 100%; }
-        #center-crosshair::after { width: 100%; height: 1px; }
+        #center-crosshair::before { width: 3px; height: 100%; }
+        #center-crosshair::after { width: 100%; height: 3px; }
 
         /* Tracker Dot */
         .tracker-base {
@@ -165,7 +167,7 @@
 </head>
 <body>
 
-    <!-- Header Configurator (Zichtbaar tijdens bewerken) -->
+    <!-- Header Configurator -->
     <div id="main-header" class="p-3 px-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[200] relative pt-[env(safe-area-inset-top, 12px)]">
         <div class="flex-grow">
             <h1 class="text-base font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
@@ -182,7 +184,7 @@
         <!-- TOP: Content Area -->
         <div id="preview-area" class="flex-grow relative bg-black overflow-hidden transition-all duration-300 min-h-0">
             
-            <!-- ====== PROP UI OVERLAYS (Altijd bovenop) ====== -->
+            <!-- ====== PROP UI OVERLAYS ====== -->
             
             <!-- Prop: Top Bar -->
             <div id="prop-top-bar" class="absolute top-0 left-0 right-0 p-3 pt-[calc(12px+env(safe-area-inset-top,0px))] flex items-center gap-2.5 z-[180] hidden-ui bg-gradient-to-b from-black/80 to-transparent">
@@ -198,7 +200,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </button>
 
-                <!-- Instellingen Icon (Brengt je terug naar config) -->
+                <!-- Instellingen Icon (Reset) -->
                 <button onclick="resetToConfig()" class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg flex-shrink-0">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path></svg>
                 </button>
@@ -206,15 +208,12 @@
 
             <!-- Prop: Side Actieknoppen -->
             <div id="prop-side-buttons" class="absolute right-3 top-[100px] flex flex-col gap-2.5 z-[180] hidden-ui">
-                <!-- Layers -->
                 <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                 </button>
-                <!-- Check-in -->
                 <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
-                <!-- SOS -->
                 <button class="w-8 h-8 rounded-full bg-red-600/90 backdrop-blur-md border border-red-400 flex items-center justify-center text-white font-black text-[9px] active:scale-95 shadow-lg shadow-red-900/50">
                     SOS
                 </button>
@@ -264,7 +263,7 @@
                     </div>
                     <div class="text-right flex flex-col items-end justify-center gap-1">
                          <div class="w-7 h-7 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center border border-blue-500/30">
-                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                             <svg class="w-3.5 h-3.5" fill="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                          </div>
                          <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Live</span>
                     </div>
@@ -285,7 +284,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="text-right"><p id="shield-uplink-status" class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Offline</p></div>
-                        <button id="shield-stop-btn" onclick="deactivateShieldLive()" class="hidden-ui py-2 px-3 bg-red-600/20 text-red-500 border border-red-500/50 rounded-lg text-[8px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center">
+                        <button id="shield-stop-btn" onclick="deactivateShieldLive()" class="hidden-ui py-2 px-3 bg-red-600/20 text-red-500 border border-red-500/50 rounded-lg text-[8px] font-black uppercase active:scale-95 transition-transform flex items-center justify-center">
                             STOP
                         </button>
                     </div>
@@ -353,8 +352,8 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase text-[8px]" disabled>Preview Loop</button>
-                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase text-[9px] shadow-lg shadow-blue-900/30" disabled>Start Live</button>
+                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase text-[8px] disabled:opacity-30" disabled>Preview Loop</button>
+                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase text-[9px] shadow-lg shadow-blue-900/30 disabled:opacity-30" disabled>Start Live</button>
             </div>
         </div>
     </div>
@@ -389,6 +388,7 @@
         const destMarker = document.getElementById('dest-marker');
         const configContainer = document.getElementById('config-container');
         const mainHeader = document.getElementById('main-header');
+        const pointCheckbox = document.getElementById('point-toggle');
 
         function handleMapUpload(event) {
             const file = event.target.files[0];
@@ -441,6 +441,13 @@
 
         function moveInteraction(x, y) {
             if (!isDragging) return;
+            
+            // Als de kaart beweegt, het vaste punt uitschakelen (nieuwe logica)
+            if (STATE.showPoint) {
+                togglePoint(false);
+                pointCheckbox.checked = false;
+            }
+            
             STATE.posX = x - startX; STATE.posY = y - startY;
             applyTransform();
         }
@@ -449,6 +456,7 @@
             STATE.showPoint = checked;
             if (checked) {
                 const rect = viewport.getBoundingClientRect();
+                // Bereken positie die exact onder het richtkruis (midden scherm) ligt
                 STATE.fixedPoint = {
                     x: (rect.width / 2 - STATE.posX) / STATE.scale,
                     y: (rect.height / 2 - STATE.posY) / STATE.scale
@@ -474,6 +482,13 @@
             STATE.scale = Math.max(0.01, Math.min(10, STATE.scale + delta));
             const ratio = STATE.scale / oldScale;
             const rect = viewport.getBoundingClientRect();
+            
+            // Als er een punt aan staat, uitschakelen bij zoom (nieuwe logica)
+            if (STATE.showPoint) {
+                togglePoint(false);
+                pointCheckbox.checked = false;
+            }
+
             STATE.posX = (rect.width / 2) - ((rect.width / 2) - STATE.posX) * ratio;
             STATE.posY = (rect.height / 2) - ((rect.height / 2) - STATE.posY) * ratio;
             applyTransform(); drawMap();
@@ -514,10 +529,11 @@
             drawMap();
         }
 
-        function clearMap() { STATE.points = []; STATE.fixedPoint = null; STATE.showPoint = false; document.getElementById('point-toggle').checked = false; drawMap(); checkReadyState(); }
+        function clearMap() { STATE.points = []; STATE.fixedPoint = null; STATE.showPoint = false; pointCheckbox.checked = false; drawMap(); checkReadyState(); }
 
         function checkReadyState() {
-            const ok = STATE.points.length > 0 || STATE.fixedPoint !== null;
+            // App kan alleen starten als er een punt is vastgezet (fixedPoint) of een route is getekend
+            const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
             document.getElementById('btn-preview').disabled = !ok;
             document.getElementById('btn-live').disabled = !ok;
         }
@@ -526,7 +542,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length-1] : null);
             
-            // Verberg punt als we in Shield Standby zijn
             const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
 
             if (STATE.points.length > 1) {
@@ -555,7 +570,7 @@
             enablePropOverlays();
             if (STATE.mode === 'shield') {
                 document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui'); // Zwart scherm
+                document.getElementById('viewport').classList.add('hidden-ui');
                 document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
                 updateShieldBottom(false);
             } else { startAnimation(); }
@@ -568,7 +583,7 @@
             enablePropOverlays();
             if (STATE.mode === 'shield') {
                 document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui'); // Zwart scherm
+                document.getElementById('viewport').classList.add('hidden-ui');
                 document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
                 updateShieldBottom(false);
             } else { mapImg.style.filter = 'saturate(1.2)'; startAnimation(); }
@@ -577,7 +592,7 @@
         function activateShieldLive() {
             STATE.isShieldActive = true;
             document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui'); // Toon kaart
+            document.getElementById('viewport').classList.remove('hidden-ui');
             updateShieldBottom(true);
             mapImg.style.filter = 'grayscale(0.4) contrast(1.2)';
             startAnimation();
@@ -586,7 +601,7 @@
         function deactivateShieldLive() {
             STATE.isShieldActive = false;
             document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-            document.getElementById('viewport').classList.add('hidden-ui'); // Weer zwart scherm
+            document.getElementById('viewport').classList.add('hidden-ui');
             updateShieldBottom(false);
             stopAnimation();
             drawMap();

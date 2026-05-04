@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --tracker-color: #ef4444;
+            --tracker-color: #ef4444; /* Standaard rood */
             --bg-color: #09090b;
             --panel-bg: #18181b;
             --text-color: #ffffff;
@@ -161,7 +161,7 @@
         <div class="flex-grow">
             <h1 class="text-base font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
                 <span id="live-dot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse hidden"></span>
-                TRACKER<span id="title-accent" class="text-blue-500 underline">PRO</span>
+                TRACKER<span class="text-blue-500 underline">PRO</span>
             </h1>
             <p id="status-text" class="text-[9px] text-zinc-500 font-mono uppercase tracking-widest leading-none mt-0.5">Systeem gereed</p>
         </div>
@@ -211,7 +211,7 @@
                 </button>
             </div>
 
-            <!-- Shield Standby Screen (Getoond bij Live/Preview van Mijn Locatie mode) -->
+            <!-- Shield Standby Scherm (Getoond bij Live/Preview van Mijn Locatie mode) -->
             <div id="shield-standby-screen" class="absolute inset-0 z-[150] flex flex-col items-center justify-center bg-zinc-950 hidden-ui">
                 <div class="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
                     <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -248,20 +248,17 @@
             <!-- Live Prop Overlay: WATCHER MODE -->
             <div id="prop-bottom-watcher" class="absolute bottom-0 left-0 right-0 p-3 z-[90] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
                 <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
-                    <!-- Avatar Area -->
                     <div class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex-shrink-0 flex items-center justify-center">
                         <svg class="w-5 h-5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     </div>
-                    <!-- Persoon Info -->
                     <div class="flex-grow">
-                        <h3 id="watcher-name" class="text-white font-black text-[13px] leading-tight capitalize tracking-wide">Onbekend</h3>
-                        <p id="watcher-status" class="text-zinc-300 text-[10px] font-medium flex items-center mt-0.5">
+                        <h3 id="watcher-name" class="text-white font-black text-[11px] leading-tight capitalize tracking-wide">Onbekend</h3>
+                        <p id="watcher-status" class="text-zinc-300 text-[9px] font-medium flex items-center mt-0.5">
                             <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>
                             Status
                         </p>
-                        <p class="text-zinc-500 text-[8px] font-mono mt-1 uppercase tracking-widest">Laatste update: <span id="watcher-time">00:00</span></p>
+                        <p class="text-zinc-500 text-[8px] font-mono mt-0.5 uppercase tracking-widest">Laatste update: <span id="watcher-time">00:00</span></p>
                     </div>
-                    <!-- Actief Status -->
                     <div class="text-right flex flex-col items-end justify-center gap-1">
                          <div class="w-7 h-7 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center border border-blue-500/30">
                              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
@@ -287,8 +284,8 @@
                         <div class="text-right">
                             <p class="text-[8px] text-green-500 font-bold uppercase animate-pulse tracking-widest">Uplink</p>
                         </div>
-                        <button onclick="deactivateShieldLive()" class="bg-red-600/20 text-red-500 border border-red-500/50 px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center">
-                            Stop
+                        <button onclick="deactivateShieldLive()" class="py-2 px-3 bg-red-600/20 text-red-500 border border-red-500/50 rounded-lg text-[8px] font-black uppercase tracking-widest active:scale-95 transition-transform flex items-center justify-center">
+                            STOP
                         </button>
                     </div>
                 </div>
@@ -299,7 +296,6 @@
         <!-- BOTTOM: Config Panel -->
         <div id="config-container" class="flex-none bg-[var(--panel-bg)] border-t border-zinc-800 p-3 flex flex-col gap-2.5 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
             
-            <!-- Upload Kaart Knop -->
             <button onclick="document.getElementById('map-upload').click()" class="w-full py-2 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[9px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 Kaart Uploaden / Wijzigen
@@ -327,7 +323,6 @@
                 </div>
             </div>
 
-            <!-- Nieuw: Status & Tijd (Alleen in Volg-Modus) -->
             <div id="watcher-extra-config" class="grid grid-cols-2 gap-2">
                 <div class="space-y-1">
                     <label class="text-[8px] font-black uppercase text-zinc-500 px-1">Status Tekst</label>
@@ -339,7 +334,6 @@
                 </div>
             </div>
 
-            <!-- 2. Tools -->
             <div class="flex gap-2">
                 <div class="relative flex-grow">
                     <select id="tool-select" onchange="setTool(this.value)" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-6 rounded-lg outline-none">
@@ -356,14 +350,12 @@
                 </button>
             </div>
 
-            <!-- 3. Eindpunt -->
             <div id="dest-config" class="grid grid-cols-3 gap-2">
                 <button id="btn-dest-none" onclick="setDest('none')" class="py-1.5 bg-zinc-800 border-2 border-white rounded-lg text-[8px] font-bold text-white uppercase">Geen Icoon</button>
                 <button id="btn-dest-home" onclick="setDest('home')" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">🏠 Home</button>
                 <button onclick="document.getElementById('dest-upload').click()" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">📸 Foto</button>
             </div>
 
-            <!-- 4. Sliders (Compact Grid) -->
             <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800 flex flex-col gap-2">
                 <div class="flex gap-3">
                     <div class="flex-1 space-y-1">
@@ -383,15 +375,14 @@
                 </div>
             </div>
 
-            <!-- 5. Actie Knoppen -->
             <div class="grid grid-cols-2 gap-2">
-                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[9px] disabled:opacity-50" disabled>Preview Loop</button>
-                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-900/30 disabled:opacity-50 active:scale-95 transition-transform" disabled>Start Live App</button>
+                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[8px] disabled:opacity-50" disabled>Preview Loop</button>
+                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-900/30 disabled:opacity-50 active:scale-95 transition-transform" disabled>Start Live</button>
             </div>
         </div>
     </div>
 
-    <!-- Startscherm Overlay (Zolang er geen kaart is) -->
+    <!-- Startscherm Overlay -->
     <div id="intro-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-[300] bg-zinc-950">
         <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.817l7-2a2 2 0 011.106 0l7 2A2 2 0 0121 5.618v9.764a2 2 0 01-1.553 1.898L15 20V13H9v7z"></path></svg>
@@ -401,7 +392,6 @@
         </button>
     </div>
 
-    <!-- Hidden Inputs -->
     <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
     <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
 
@@ -448,7 +438,6 @@
         const btnPreview = document.getElementById('btn-preview');
         const mainHeader = document.getElementById('main-header');
 
-        // --- UPLOAD LOGICA ---
         function handleMapUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -472,7 +461,7 @@
                         
                         STATE.posX = (rect.width - (mapImg.naturalWidth * STATE.scale)) / 2;
                         STATE.posY = (rect.height - (mapImg.naturalHeight * STATE.scale)) / 2;
-                        STATE.points = []; 
+                        STATE.points = [];
                         
                         applyTransform();
                         updateThemeColors();
@@ -498,7 +487,6 @@
             reader.readAsDataURL(file);
         }
 
-        // --- MAP INTERACTIES ---
         viewport.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
         window.addEventListener('mousemove', (e) => moveInteraction(e.clientX, e.clientY));
         window.addEventListener('mouseup', endInteraction);
@@ -526,13 +514,10 @@
                 const mapCoords = getMapCoords(x, y);
                 if (STATE.tool === 'point') {
                     STATE.points = [mapCoords];
-                    
-                    // ONMIDDELLIJK CENTREREN BIJ VAST PUNT
                     const rect = viewport.getBoundingClientRect();
                     STATE.posX = (rect.width / 2) - (mapCoords.x * STATE.scale);
                     STATE.posY = (rect.height / 2) - (mapCoords.y * STATE.scale);
                     applyTransform();
-                    
                 } else if (STATE.tool === 'route') {
                     STATE.points.push(mapCoords);
                 }
@@ -581,11 +566,10 @@
             drawMap();
         }
 
-        // --- UI UPDATES ---
         function setTool(tool) {
             if (STATE.isPlayingPreview || STATE.isLive) return;
             STATE.tool = tool;
-            document.getElementById('tool-select').value = tool; 
+            document.getElementById('tool-select').value = tool;
             viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
         }
 
@@ -604,7 +588,6 @@
             } else {
                 optRoute.style.display = 'block';
             }
-            
             updateThemeColors();
             drawMap();
         }
@@ -618,7 +601,7 @@
         function updateThemeColors() {
             const color = COLORS[STATE.person];
             document.documentElement.style.setProperty('--tracker-color', color);
-            document.getElementById('title-accent').style.color = color;
+            // document.getElementById('title-accent').style.color = color; // Deze regel is verwijderd zodat logo blauw blijft
             btnLive.style.backgroundColor = color;
         }
 
@@ -679,7 +662,6 @@
             }
         }
 
-        // --- PREVIEW & LIVE LOGICA ---
         function togglePreview() {
             STATE.isPlayingPreview = true;
             configContainer.classList.add('hidden-ui'); 
@@ -723,17 +705,15 @@
             document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
 
             if(STATE.mode === 'shield') {
-                // Toon bottom shield niet direct als we naar standby gaan.
+                document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
                 document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
             } else {
                 document.getElementById('prop-bottom-watcher').classList.remove('hidden-ui');
                 document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
                 
-                // Dynamisch updaten van de UI teksten uit de config
                 document.getElementById('watcher-name').innerText = STATE.person;
                 document.getElementById('watcher-time').innerText = STATE.updateTime;
                 
-                // Opbouwen van de status
                 const statusHtml = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>${STATE.statusText}`;
                 document.getElementById('watcher-status').innerHTML = statusHtml;
             }
@@ -861,1564 +841,6 @@
             }
         });
         resizeObs.observe(viewport);
-
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tracker Pro - Precision Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --tracker-color: #ef4444;
-            --bg-color: #09090b;
-            --panel-bg: #18181b;
-            --text-color: #ffffff;
-            --border-color: #27272a;
-            --dot-size: 24px;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            touch-action: none;
-        }
-
-        /* Viewport & Map */
-        #viewport {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            background: #111113;
-            z-index: 10;
-            touch-action: none;
-        }
-
-        #map-wrapper {
-            position: absolute;
-            transform-origin: 0 0;
-            will-change: transform;
-            backface-visibility: hidden;
-        }
-
-        #map-img {
-            display: block;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: filter 0.5s;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* Tracker Dot */
-        .tracker-base {
-            background: var(--tracker-color);
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--tracker-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 2;
-        }
-        #tracker-dot {
-            position: absolute;
-            transform-origin: center;
-            transform: translate(-50%, -50%);
-            width: var(--dot-size);
-            height: var(--dot-size);
-            z-index: 10;
-            display: none;
-        }
-        .pulse {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: var(--tracker-color);
-            border-radius: 50%;
-            opacity: 0.5;
-            z-index: 1;
-            animation: pulse-animation 2s infinite ease-out;
-        }
-        @keyframes pulse-animation {
-            0% { transform: scale(0.8); opacity: 0.8; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
-
-        /* Dest Marker: Druppel Vorm */
-        #dest-marker {
-            position: absolute;
-            transform: translate(-50%, -100%);
-            z-index: 5;
-            display: none;
-            pointer-events: none;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
-        }
-        .teardrop {
-            width: 36px;
-            height: 36px;
-            background-color: var(--tracker-color);
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
-        }
-        .teardrop-inner {
-            transform: rotate(45deg);
-            width: 26px;
-            height: 26px;
-            background: #18181b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid white;
-            font-size: 14px;
-        }
-        .teardrop-inner img {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-
-        /* Forms */
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--text-color); margin-top: -5px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
-        
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-
-        /* Verbergt elementen strak */
-        .hidden-ui { display: none !important; }
-
-        /* Aanpassing zoom-controls in Live/Preview modus */
-        #zoom-ctrls { transition: top 0.3s ease; }
-        #preview-area.prop-active #zoom-ctrls { top: 80px; }
-    </style>
-</head>
-<body>
-
-    <!-- Header Configurator -->
-    <div id="main-header" class="p-3 px-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[200] relative pt-[env(safe-area-inset-top, 12px)]">
-        <div class="flex-grow">
-            <h1 class="text-base font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
-                <span id="live-dot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse hidden"></span>
-                TRACKER<span id="title-accent" class="text-blue-500 underline">PRO</span>
-            </h1>
-            <p id="status-text" class="text-[9px] text-zinc-500 font-mono uppercase tracking-widest leading-none mt-0.5">Systeem gereed</p>
-        </div>
-    </div>
-
-    <!-- MAIN APP LAYOUT -->
-    <div id="app-content" class="flex-grow flex flex-col overflow-hidden">
-        
-        <!-- TOP: Map Container -->
-        <div id="preview-area" class="flex-grow relative bg-black overflow-hidden transition-all duration-300 min-h-0">
-            
-            <!-- ====== PROP UI OVERLAYS ====== -->
-            
-            <!-- Prop: Top Bar (Logo, Zoeken, Knoppen) -->
-            <div id="prop-top-bar" class="absolute top-0 left-0 right-0 p-3 pt-[calc(12px+env(safe-area-inset-top,0px))] flex items-center gap-2.5 z-[95] hidden-ui bg-gradient-to-b from-black/80 to-transparent">
-                <h1 class="text-[14px] font-black italic tracking-tighter text-white mr-1 drop-shadow-md">TRACKER<span class="text-blue-500">PRO</span></h1>
-                
-                <div class="flex-grow bg-zinc-900/70 backdrop-blur-md border border-white/10 rounded-full flex items-center px-3 py-1.5 shadow-inner">
-                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <span class="text-[10px] text-zinc-400 ml-2 uppercase font-bold tracking-widest">Zoeken...</span>
-                </div>
-
-                <!-- People Icon -->
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform flex-shrink-0 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </button>
-
-                <!-- Instellingen Icon (Brengt je terug naar config) -->
-                <button onclick="resetToConfig()" class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform flex-shrink-0 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path></svg>
-                </button>
-            </div>
-
-            <!-- Prop: Side Actieknoppen -->
-            <div id="prop-side-buttons" class="absolute right-3 top-[100px] flex flex-col gap-2.5 z-[95] hidden-ui">
-                <!-- Layers -->
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-                </button>
-                <!-- Check-in -->
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </button>
-                <!-- SOS -->
-                <button class="w-8 h-8 rounded-full bg-red-600/90 backdrop-blur-md border border-red-400 flex items-center justify-center text-white font-black text-[9px] active:scale-95 shadow-lg shadow-red-900/50">
-                    SOS
-                </button>
-            </div>
-
-            <!-- Shield Standby Screen (Getoond bij Live/Preview van Mijn Locatie mode) -->
-            <div id="shield-standby-screen" class="absolute inset-0 z-[150] flex flex-col items-center justify-center bg-zinc-950 hidden-ui">
-                <div class="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
-                    <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </div>
-                <h2 class="text-xl font-black uppercase mb-2 text-white text-center tracking-wide drop-shadow-md">Locatie Delen Uit</h2>
-                <p class="text-zinc-400 mb-10 text-xs max-w-[220px] text-center leading-relaxed">Je locatie wordt momenteel niet gedeeld. Tik op de knop om te starten.</p>
-                <button onclick="activateShieldLive()" class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs text-white shadow-xl shadow-blue-900/40 transition-all active:scale-95 border border-blue-400/30">
-                    LOCATIE DELEN
-                </button>
-            </div>
-
-            <!-- Zoom Controls Inside Frame -->
-            <div id="zoom-ctrls" class="absolute top-3 right-3 z-[100] flex flex-col gap-1.5">
-                <button onclick="changeZoom(0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">+</button>
-                <button onclick="changeZoom(-0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">-</button>
-            </div>
-
-            <!-- Viewport -->
-            <div id="viewport">
-                <div id="map-wrapper">
-                    <img id="map-img" alt="Kaart">
-                    <canvas id="route-canvas"></canvas>
-                    
-                    <div id="dest-marker">
-                        <div class="teardrop"><div class="teardrop-inner" id="dest-icon-container"></div></div>
-                    </div>
-                    
-                    <div id="tracker-dot">
-                        <div class="tracker-base"><div class="pulse"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Prop Overlay: WATCHER MODE (Nieuw Data Paneel) -->
-            <div id="prop-bottom-watcher" class="absolute bottom-0 left-0 right-0 p-3 z-[90] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
-                <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
-                    <!-- Avatar Area -->
-                    <div class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex-shrink-0 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    </div>
-                    <!-- Persoon Info -->
-                    <div class="flex-grow">
-                        <h3 id="watcher-name" class="text-white font-black text-[13px] leading-tight capitalize tracking-wide">Onbekend</h3>
-                        <p id="watcher-status" class="text-zinc-300 text-[10px] font-medium flex items-center mt-0.5">
-                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>
-                            Status
-                        </p>
-                        <p class="text-zinc-500 text-[8px] font-mono mt-1 uppercase tracking-widest">Laatste update: <span id="watcher-time">00:00</span></p>
-                    </div>
-                    <!-- Actief Status -->
-                    <div class="text-right flex flex-col items-end justify-center gap-1">
-                         <div class="w-7 h-7 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center border border-blue-500/30">
-                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                         </div>
-                         <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Live</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Prop Overlay: SHIELD MODE -->
-            <div id="prop-bottom-shield" class="absolute bottom-0 left-0 right-0 p-3 z-[90] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
-                <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 flex justify-between items-center shadow-2xl">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full border-2 border-current text-[var(--tracker-color)] flex items-center justify-center bg-zinc-900">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-white font-black uppercase tracking-widest leading-tight">Locatie Delen Actief</p>
-                            <p class="text-[9px] text-zinc-400 font-mono mt-0.5">Mijn Locatie</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[8px] text-green-500 font-bold uppercase animate-pulse tracking-widest">Uplink</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- BOTTOM: Config Panel -->
-        <div id="config-container" class="flex-none bg-[var(--panel-bg)] border-t border-zinc-800 p-3 flex flex-col gap-2.5 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
-            
-            <!-- Upload Kaart Knop -->
-            <button onclick="document.getElementById('map-upload').click()" class="w-full py-2 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[9px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Kaart Uploaden / Wijzigen
-            </button>
-
-            <!-- 1. App Modus & Identiteit -->
-            <div class="grid grid-cols-2 gap-2">
-                <div class="relative">
-                    <select id="app-mode" onchange="updateMode()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-6 rounded-lg outline-none">
-                        <option value="watcher">👁️ Iemand Volgen</option>
-                        <option value="shield">🛡️ Mijn Locatie</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-zinc-400">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-                <div class="relative">
-                    <select id="person-select" onchange="updatePerson()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-6 rounded-lg outline-none">
-                        <option value="maaike">🔴 Maaike</option>
-                        <option value="orlando">🔵 Orlando</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-zinc-400">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Nieuw: Status & Tijd (Alleen in Volg-Modus) -->
-            <div id="watcher-extra-config" class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                    <label class="text-[8px] font-black uppercase text-zinc-500 px-1">Status Tekst</label>
-                    <input type="text" id="status-input" value="Thuis" oninput="STATE.statusText = this.value" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[8px] font-black uppercase text-zinc-500 px-1">Laatste Update</label>
-                    <input type="time" id="time-input" value="09:10" onchange="STATE.updateTime = this.value" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none">
-                </div>
-            </div>
-
-            <!-- 2. Tools -->
-            <div class="flex gap-2">
-                <div class="relative flex-grow">
-                    <select id="tool-select" onchange="setTool(this.value)" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-6 rounded-lg outline-none">
-                        <option value="pan">🖐️ Kaart Verslepen</option>
-                        <option value="point">📍 Vast Punt (Centreren)</option>
-                        <option id="opt-route" value="route">🗺️ Teken Volgroute</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-zinc-400">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-                <button onclick="clearMap()" class="w-16 bg-zinc-900 border border-zinc-800 text-red-500 rounded-lg text-[9px] font-black uppercase active:bg-zinc-800 transition-colors">
-                    Wis
-                </button>
-            </div>
-
-            <!-- 3. Eindpunt -->
-            <div id="dest-config" class="grid grid-cols-3 gap-2">
-                <button id="btn-dest-none" onclick="setDest('none')" class="py-1.5 bg-zinc-800 border-2 border-white rounded-lg text-[8px] font-bold text-white uppercase">Geen Icoon</button>
-                <button id="btn-dest-home" onclick="setDest('home')" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">🏠 Home</button>
-                <button onclick="document.getElementById('dest-upload').click()" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase">📸 Foto</button>
-            </div>
-
-            <!-- 4. Sliders (Compact Grid) -->
-            <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800 flex flex-col gap-2">
-                <div class="flex gap-3">
-                    <div class="flex-1 space-y-1">
-                        <div class="text-[8px] text-zinc-400 uppercase font-black">Grootte</div>
-                        <input type="range" id="size-slider" min="10" max="60" value="24" oninput="updateSize(this.value)">
-                    </div>
-                    <div class="flex-1 space-y-1" id="speed-config">
-                        <div class="text-[8px] text-zinc-400 uppercase font-black">Snelheid</div>
-                        <input type="range" id="speed-slider" min="10" max="200" value="50" oninput="STATE.speed = parseInt(this.value)">
-                    </div>
-                </div>
-                <div class="flex items-center pt-1.5 border-t border-zinc-800/50">
-                    <label class="flex items-center gap-2 cursor-pointer w-full">
-                        <input type="checkbox" id="auto-center-toggle" onchange="STATE.autoCenter = this.checked" class="w-3.5 h-3.5 accent-blue-600 rounded">
-                        <span class="text-[9px] text-zinc-400 uppercase font-black mt-0.5">Auto-Center (Tijdens Live)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 5. Actie Knoppen -->
-            <div class="grid grid-cols-2 gap-2">
-                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[9px] disabled:opacity-50" disabled>Preview Loop</button>
-                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-900/30 disabled:opacity-50 active:scale-95 transition-transform" disabled>Start Live App</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Startscherm Overlay (Zolang er geen kaart is) -->
-    <div id="intro-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-[300] bg-zinc-950">
-        <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.817l7-2a2 2 0 011.106 0l7 2A2 2 0 0121 5.618v9.764a2 2 0 01-1.553 1.898L15 20V13H9v7z"></path></svg>
-        </div>
-        <button onclick="document.getElementById('map-upload').click()" class="bg-blue-600 hover:bg-blue-500 px-8 py-3.5 rounded-xl font-bold shadow-xl shadow-blue-900/40 transition-all text-white text-sm">
-            KAART LADEN
-        </button>
-    </div>
-
-    <!-- Hidden Inputs -->
-    <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
-    <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
-
-    <script>
-        const STATE = {
-            mode: 'watcher',
-            tool: 'pan',
-            person: 'maaike',
-            statusText: 'Thuis',
-            updateTime: '09:10',
-            destType: 'none',
-            destImg: null,
-            points: [],
-            scale: 1,
-            posX: 0,
-            posY: 0,
-            size: 24,
-            speed: 50,
-            autoCenter: false, 
-            isPlayingPreview: false,
-            isLive: false,
-            animProgress: 0,
-            targetIndex: 1,
-            lastTime: 0,
-            animId: null
-        };
-
-        const COLORS = { maaike: '#ef4444', orlando: '#3b82f6' };
-        let isDragging = false;
-        let startX, startY;
-
-        const viewport = document.getElementById('viewport');
-        const mapWrapper = document.getElementById('map-wrapper');
-        const mapImg = document.getElementById('map-img');
-        const canvas = document.getElementById('route-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        const trackerDot = document.getElementById('tracker-dot');
-        const destMarker = document.getElementById('dest-marker');
-        const destIconContainer = document.getElementById('dest-icon-container');
-        
-        const configContainer = document.getElementById('config-container');
-        const btnLive = document.getElementById('btn-live');
-        const btnPreview = document.getElementById('btn-preview');
-        const mainHeader = document.getElementById('main-header');
-
-        // --- UPLOAD LOGICA ---
-        function handleMapUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                mapImg.onload = () => {
-                    document.getElementById('intro-screen').classList.add('hidden-ui');
-                    
-                    function setupMap() {
-                        const rect = viewport.getBoundingClientRect();
-                        if(rect.width === 0 || rect.height === 0) {
-                            requestAnimationFrame(setupMap);
-                            return;
-                        }
-                        
-                        canvas.width = mapImg.naturalWidth;
-                        canvas.height = mapImg.naturalHeight;
-                        
-                        const scaleH = rect.height / mapImg.naturalHeight;
-                        STATE.scale = scaleH;
-                        
-                        STATE.posX = (rect.width - (mapImg.naturalWidth * STATE.scale)) / 2;
-                        STATE.posY = (rect.height - (mapImg.naturalHeight * STATE.scale)) / 2;
-                        STATE.points = []; 
-                        
-                        applyTransform();
-                        updateThemeColors();
-                        drawMap();
-                        checkReadyState();
-                    }
-                    
-                    setupMap();
-                };
-                mapImg.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function handleDestUpload(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                STATE.destImg = e.target.result;
-                setDest('img');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- MAP INTERACTIES ---
-        viewport.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
-        window.addEventListener('mousemove', (e) => moveInteraction(e.clientX, e.clientY));
-        window.addEventListener('mouseup', endInteraction);
-        viewport.addEventListener('mouseleave', endInteraction);
-        
-        viewport.addEventListener('touchstart', (e) => {
-            const t = e.touches[0];
-            startInteraction(t.clientX, t.clientY);
-        }, {passive: false});
-        window.addEventListener('touchmove', (e) => {
-            const t = e.touches[0];
-            moveInteraction(t.clientX, t.clientY);
-        }, {passive: false});
-        window.addEventListener('touchend', endInteraction);
-
-        function startInteraction(x, y) {
-            if (STATE.isPlayingPreview || STATE.isLive) return;
-            
-            if (STATE.tool === 'pan') {
-                isDragging = true;
-                startX = x - STATE.posX;
-                startY = y - STATE.posY;
-                viewport.style.cursor = 'grabbing';
-            } else {
-                const mapCoords = getMapCoords(x, y);
-                if (STATE.tool === 'point') {
-                    STATE.points = [mapCoords];
-                    
-                    const rect = viewport.getBoundingClientRect();
-                    STATE.posX = (rect.width / 2) - (mapCoords.x * STATE.scale);
-                    STATE.posY = (rect.height / 2) - (mapCoords.y * STATE.scale);
-                    applyTransform();
-                    
-                } else if (STATE.tool === 'route') {
-                    STATE.points.push(mapCoords);
-                }
-                drawMap();
-                checkReadyState();
-            }
-        }
-
-        function moveInteraction(x, y) {
-            if (!isDragging || STATE.tool !== 'pan') return;
-            STATE.posX = x - startX;
-            STATE.posY = y - startY;
-            applyTransform();
-        }
-
-        function endInteraction() { 
-            isDragging = false; 
-            if(STATE.tool === 'pan') viewport.style.cursor = 'grab';
-        }
-
-        function getMapCoords(clientX, clientY) {
-            const rect = mapWrapper.getBoundingClientRect();
-            return {
-                x: (clientX - rect.left) / STATE.scale,
-                y: (clientY - rect.top) / STATE.scale
-            };
-        }
-
-        function applyTransform() {
-            mapWrapper.style.transform = `translate3d(${STATE.posX}px, ${STATE.posY}px, 0) scale(${STATE.scale})`;
-        }
-
-        function changeZoom(delta) {
-            const oldScale = STATE.scale;
-            STATE.scale = Math.max(0.01, Math.min(10, STATE.scale + delta));
-            const ratio = STATE.scale / oldScale;
-
-            const rect = viewport.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            STATE.posX = centerX - (centerX - STATE.posX) * ratio;
-            STATE.posY = centerY - (centerY - STATE.posY) * ratio;
-
-            applyTransform();
-            drawMap();
-        }
-
-        // --- UI UPDATES ---
-        function setTool(tool) {
-            if (STATE.isPlayingPreview || STATE.isLive) return;
-            STATE.tool = tool;
-            document.getElementById('tool-select').value = tool; 
-            viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
-        }
-
-        function updateMode() {
-            const isShield = document.getElementById('app-mode').value === 'shield';
-            STATE.mode = document.getElementById('app-mode').value;
-            
-            document.getElementById('dest-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('speed-config').style.visibility = isShield ? 'hidden' : 'visible';
-            document.getElementById('watcher-extra-config').style.display = isShield ? 'none' : 'grid';
-            
-            const optRoute = document.getElementById('opt-route');
-            if (isShield) {
-                optRoute.style.display = 'none';
-                if(STATE.tool === 'route') setTool('point');
-            } else {
-                optRoute.style.display = 'block';
-            }
-            
-            updateThemeColors();
-            drawMap();
-        }
-
-        function updatePerson() {
-            STATE.person = document.getElementById('person-select').value;
-            updateThemeColors();
-            drawMap();
-        }
-
-        function updateThemeColors() {
-            const color = COLORS[STATE.person];
-            document.documentElement.style.setProperty('--tracker-color', color);
-            document.getElementById('title-accent').style.color = color;
-            btnLive.style.backgroundColor = color;
-        }
-
-        function updateSize(val) {
-            STATE.size = val;
-            document.documentElement.style.setProperty('--dot-size', `${val}px`);
-        }
-
-        function setDest(type) {
-            STATE.destType = type;
-            ['none', 'home'].forEach(t => {
-                const btn = document.getElementById(`btn-dest-${t}`);
-                if(btn) {
-                    btn.classList.toggle('border-white', t === type);
-                    btn.classList.toggle('text-white', t === type);
-                    btn.classList.toggle('border-transparent', t !== type);
-                }
-            });
-            drawMap();
-        }
-
-        function clearMap() { STATE.points = []; drawMap(); checkReadyState(); }
-
-        function checkReadyState() {
-            const ok = STATE.points.length > 0;
-            btnPreview.disabled = !ok;
-            btnLive.disabled = !ok;
-        }
-
-        function drawMap() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (STATE.points.length > 0) {
-                ctx.beginPath();
-                ctx.strokeStyle = COLORS[STATE.person];
-                ctx.lineWidth = 6 / STATE.scale;
-                if(STATE.points.length > 1) ctx.setLineDash([15/STATE.scale, 10/STATE.scale]);
-                ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
-                ctx.stroke();
-
-                const last = STATE.points[STATE.points.length - 1];
-                trackerDot.style.display = 'block';
-                trackerDot.style.left = last.x + 'px';
-                trackerDot.style.top = last.y + 'px';
-            } else {
-                trackerDot.style.display = 'none';
-            }
-
-            if (STATE.mode !== 'shield' && STATE.destType !== 'none' && STATE.points.length > 0) {
-                destMarker.style.display = 'block';
-                const last = STATE.points[STATE.points.length - 1];
-                destMarker.style.left = last.x + 'px';
-                destMarker.style.top = last.y + 'px';
-                if (STATE.destType === 'home') destIconContainer.innerHTML = '🏠';
-                else if (STATE.destImg) destIconContainer.innerHTML = `<img src="${STATE.destImg}">`;
-            } else { 
-                destMarker.style.display = 'none'; 
-            }
-        }
-
-        // --- PREVIEW & LIVE LOGICA ---
-        function togglePreview() {
-            STATE.isPlayingPreview = true;
-            configContainer.classList.add('hidden-ui'); 
-            
-            enablePropOverlays();
-
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-screen').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-            } else {
-                startAnimation();
-            }
-        }
-
-        function startLiveMode() {
-            STATE.isLive = true;
-            stopAnimation(); 
-            
-            mainHeader.classList.add('hidden-ui');
-            configContainer.classList.add('hidden-ui');
-            
-            document.getElementById('zoom-ctrls').classList.add('hidden-ui');
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            
-            enablePropOverlays();
-
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-screen').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-            } else {
-                mapImg.style.filter = 'saturate(1.2)';
-                startAnimation();
-            }
-        }
-
-        function enablePropOverlays() {
-            document.getElementById('preview-area').classList.add('prop-active');
-            document.getElementById('prop-top-bar').classList.remove('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
-
-            if(STATE.mode === 'shield') {
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            } else {
-                document.getElementById('prop-bottom-watcher').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-                
-                // Dynamisch updaten van de UI teksten uit de config
-                document.getElementById('watcher-name').innerText = STATE.person;
-                document.getElementById('watcher-time').innerText = STATE.updateTime;
-                
-                // Opbouwen van de status
-                const statusHtml = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>${STATE.statusText}`;
-                document.getElementById('watcher-status').innerHTML = statusHtml;
-            }
-        }
-
-        function activateShieldLive() {
-            document.getElementById('shield-standby-screen').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            
-            if(STATE.isLive || STATE.isPlayingPreview) {
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-            }
-            
-            mapImg.style.filter = 'grayscale(0.4) contrast(1.2)';
-            startAnimation();
-        }
-
-        function resetToConfig() {
-            STATE.isLive = false;
-            STATE.isPlayingPreview = false;
-            stopAnimation();
-            
-            mainHeader.classList.remove('hidden-ui');
-            configContainer.classList.remove('hidden-ui');
-            
-            document.getElementById('preview-area').classList.remove('prop-active');
-            document.getElementById('prop-top-bar').classList.add('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-            
-            document.getElementById('shield-standby-screen').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            document.getElementById('zoom-ctrls').classList.remove('hidden-ui');
-            
-            mapImg.style.filter = 'none';
-            drawMap(); 
-        }
-
-        function startAnimation() {
-            STATE.animProgress = 0;
-            STATE.targetIndex = 1;
-            STATE.lastTime = performance.now();
-            
-            if(STATE.mode === 'shield' || STATE.points.length < 2) {
-                const p = STATE.points[0];
-                updateTrackerLive(p.x, p.y);
-                setTimeout(() => { if(STATE.isPlayingPreview || STATE.isLive) updateTrackerLive(p.x, p.y); }, 500);
-            } else {
-                STATE.animId = requestAnimationFrame(animLoop);
-            }
-        }
-
-        function stopAnimation() {
-            if (STATE.animId) cancelAnimationFrame(STATE.animId);
-            drawMap(); 
-        }
-
-        function animLoop(timestamp) {
-            if (!STATE.isPlayingPreview && !STATE.isLive) return;
-            const delta = (timestamp - STATE.lastTime) / 1000;
-            STATE.lastTime = timestamp;
-            
-            const p1 = STATE.points[STATE.targetIndex - 1];
-            const p2 = STATE.points[STATE.targetIndex];
-            const dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-            
-            if (dist > 0) STATE.animProgress += (STATE.speed * delta) / dist;
-            else STATE.animProgress = 1;
-            
-            if (STATE.animProgress >= 1) {
-                STATE.animProgress = 0;
-                STATE.targetIndex++;
-                if (STATE.targetIndex >= STATE.points.length) STATE.targetIndex = 1; 
-            }
-            
-            const curX = p1.x + (p2.x - p1.x) * STATE.animProgress;
-            const curY = p1.y + (p2.y - p1.y) * STATE.animProgress;
-            
-            updateTrackerLive(curX, curY);
-            STATE.animId = requestAnimationFrame(animLoop);
-        }
-
-        function updateTrackerLive(x, y) {
-            trackerDot.style.left = `${x}px`;
-            trackerDot.style.top = `${y}px`;
-            
-            if (STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive)) {
-                const rect = viewport.getBoundingClientRect();
-                STATE.posX = (rect.width / 2) - (x * STATE.scale);
-                STATE.posY = (rect.height / 2) - (y * STATE.scale);
-                applyTransform();
-            }
-        }
-
-        // --- RESIZE OBSERVER ---
-        let lastViewportW = 0;
-        let lastViewportH = 0;
-
-        const resizeObs = new ResizeObserver(entries => {
-            for(let entry of entries) {
-                const nw = entry.contentRect.width;
-                const nh = entry.contentRect.height;
-
-                if (lastViewportW > 0 && lastViewportH > 0 && nw > 0 && nh > 0) {
-                    const isMovingRoute = STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive) && STATE.points.length > 1;
-                    
-                    if (!isMovingRoute) {
-                        const cx = (lastViewportW / 2 - STATE.posX) / STATE.scale;
-                        const cy = (lastViewportH / 2 - STATE.posY) / STATE.scale;
-                        STATE.posX = (nw / 2) - (cx * STATE.scale);
-                        STATE.posY = (nh / 2) - (cy * STATE.scale);
-                        applyTransform();
-                    }
-                }
-                lastViewportW = nw;
-                lastViewportH = nh;
-            }
-        });
-        resizeObs.observe(viewport);
-
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tracker Pro - Precision Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --tracker-color: #ef4444; /* Default Red */
-            --bg-color: #09090b;
-            --panel-bg: #18181b;
-            --text-color: #ffffff;
-            --border-color: #27272a;
-            --dot-size: 24px;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            touch-action: none;
-        }
-
-        /* Viewport & Map */
-        #viewport {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            background: #111113;
-            z-index: 10;
-        }
-
-        #map-wrapper {
-            position: absolute;
-            transform-origin: 0 0;
-            will-change: transform;
-            backface-visibility: hidden;
-        }
-
-        #map-img {
-            display: block;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: filter 0.5s;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* Tracker Dot */
-        .tracker-base {
-            background: var(--tracker-color);
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--tracker-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 2;
-        }
-        #tracker-dot {
-            position: absolute;
-            transform-origin: center;
-            transform: translate(-50%, -50%);
-            width: var(--dot-size);
-            height: var(--dot-size);
-            z-index: 10;
-            display: none;
-        }
-        .pulse {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: var(--tracker-color);
-            border-radius: 50%;
-            opacity: 0.5;
-            z-index: 1;
-            animation: pulse-animation 2s infinite ease-out;
-        }
-        @keyframes pulse-animation {
-            0% { transform: scale(0.8); opacity: 0.8; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
-
-        /* Dest Marker: Druppel Vorm */
-        #dest-marker {
-            position: absolute;
-            transform: translate(-50%, -100%);
-            z-index: 5;
-            display: none;
-            pointer-events: none;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
-        }
-        .teardrop {
-            width: 44px;
-            height: 44px;
-            background-color: var(--tracker-color);
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
-        }
-        .teardrop-inner {
-            transform: rotate(45deg);
-            width: 34px;
-            height: 34px;
-            background: #18181b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid white;
-            font-size: 16px;
-        }
-        .teardrop-inner img {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-
-        /* Forms */
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--text-color); margin-top: -6px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
-        
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Header -->
-    <div id="main-header" class="p-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[200] relative pt-[env(safe-area-inset-top, 16px)]">
-        <div class="flex-grow">
-            <h1 class="text-lg font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
-                <span id="live-dot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse hidden"></span>
-                TRACKER<span id="title-accent" class="text-blue-500 underline">PRO</span>
-            </h1>
-            <p id="status-text" class="text-[10px] text-zinc-500 font-mono uppercase tracking-widest leading-none">Systeem gereed</p>
-        </div>
-        <button id="btn-settings" onclick="resetToConfig()" class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-400 hidden active:bg-zinc-800 transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-    </div>
-
-    <!-- MAIN APP LAYOUT -->
-    <div id="app-content" class="flex-grow flex flex-col overflow-hidden">
-        
-        <!-- TOP: Map Container -->
-        <div id="preview-area" class="flex-grow relative bg-black overflow-hidden transition-all duration-500 min-h-0">
-            
-            <!-- Zoom Controls Inside Frame -->
-            <div id="zoom-ctrls" class="absolute top-4 right-4 z-[100] flex flex-col gap-2">
-                <button onclick="changeZoom(0.3)" class="w-10 h-10 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-xl border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center">+</button>
-                <button onclick="changeZoom(-0.3)" class="w-10 h-10 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-xl border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center">-</button>
-            </div>
-
-            <!-- Viewport -->
-            <div id="viewport">
-                <div id="map-wrapper">
-                    <img id="map-img" alt="Kaart">
-                    <canvas id="route-canvas"></canvas>
-                    
-                    <div id="dest-marker">
-                        <div class="teardrop"><div class="teardrop-inner" id="dest-icon-container"></div></div>
-                    </div>
-                    
-                    <div id="tracker-dot">
-                        <div class="tracker-base"><div class="pulse"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Prop Overlay -->
-            <div id="prop-overlay-bottom" class="absolute bottom-0 left-0 right-0 p-4 z-[90] hidden pointer-events-none bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[env(safe-area-inset-bottom,24px)]">
-                <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-2xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full border-2 border-current text-[var(--tracker-color)] flex items-center justify-center bg-zinc-900">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-[12px] text-white font-black uppercase tracking-widest leading-tight">Tracking Actief</p>
-                            <p class="text-[10px] text-zinc-400 font-mono mt-0.5">Bijgewerkt: zojuist</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] text-green-500 font-bold uppercase animate-pulse tracking-widest">Uplink</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- BOTTOM: Config Panel -->
-        <div id="config-container" class="flex-none bg-[var(--panel-bg)] border-t border-zinc-800 overflow-y-auto max-h-[50vh] p-4 space-y-4">
-            
-            <!-- Upload Kaart Knop -->
-            <button onclick="document.getElementById('map-upload').click()" class="w-full py-3 bg-zinc-800 text-white rounded-xl font-black uppercase tracking-widest text-[10px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Kaart Uploaden / Wijzigen
-            </button>
-
-            <!-- 1. App Modus & Identiteit -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="relative">
-                    <select id="app-mode" onchange="updateMode()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-3 pr-8 rounded-xl outline-none">
-                        <option value="watcher">👁️ Iemand Volgen</option>
-                        <option value="shield">🛡️ Mijn Locatie (Shield)</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-                <div class="relative">
-                    <select id="person-select" onchange="updatePerson()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-3 pr-8 rounded-xl outline-none">
-                        <option value="maaike">🔴 Maaike (Rood)</option>
-                        <option value="orlando">🔵 Orlando (Blauw)</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Tools -->
-            <div class="flex gap-2">
-                <div class="relative flex-grow">
-                    <select id="tool-select" onchange="setTool(this.value)" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[11px] font-bold p-3 pr-8 rounded-xl outline-none">
-                        <option value="pan">🖐️ Kaart Verslepen</option>
-                        <option value="point">📍 Plaats Vast Punt (Centreren)</option>
-                        <option id="opt-route" value="route">🗺️ Teken Volgroute</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-                <button onclick="clearMap()" class="px-5 bg-zinc-900 border border-zinc-800 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest active:bg-zinc-800 transition-colors">
-                    Wis
-                </button>
-            </div>
-
-            <!-- 3. Eindpunt -->
-            <div id="dest-config" class="grid grid-cols-3 gap-2">
-                <button id="btn-dest-none" onclick="setDest('none')" class="py-2 bg-zinc-800 border-2 border-white rounded-lg text-[9px] font-bold text-white uppercase">Geen Icoon</button>
-                <button id="btn-dest-home" onclick="setDest('home')" class="py-2 bg-zinc-900 border-2 border-transparent rounded-lg text-[9px] font-bold text-zinc-400 uppercase">🏠 Home</button>
-                <button onclick="document.getElementById('dest-upload').click()" class="py-2 bg-zinc-900 border-2 border-transparent rounded-lg text-[9px] font-bold text-zinc-400 uppercase">📸 Foto</button>
-            </div>
-
-            <!-- 4. Sliders -->
-            <div class="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 space-y-4">
-                <div class="space-y-1">
-                    <div class="flex justify-between text-[9px] text-zinc-400 uppercase font-black">
-                        <span>Grootte Signaal</span>
-                    </div>
-                    <input type="range" id="size-slider" min="10" max="60" value="24" oninput="updateSize(this.value)">
-                </div>
-                <div class="space-y-1" id="speed-config">
-                    <div class="flex justify-between text-[9px] text-zinc-400 uppercase font-black">
-                        <span>Snelheid Route</span>
-                    </div>
-                    <input type="range" id="speed-slider" min="10" max="200" value="50" oninput="STATE.speed = parseInt(this.value)">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between px-1">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="auto-center-toggle" onchange="STATE.autoCenter = this.checked" class="w-4 h-4 accent-blue-600 rounded">
-                    <span class="text-[10px] text-zinc-400 uppercase font-black">Auto-Center (Tijdens Live)</span>
-                </label>
-            </div>
-
-            <!-- 5. Actie Knoppen -->
-            <div class="pt-1">
-                <button id="btn-live" onclick="startLiveMode()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-blue-900/30 disabled:opacity-50 transition-all active:scale-95" disabled>Start Live App</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Startscherm Overlay (Zolang er geen kaart is) -->
-    <div id="intro-screen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-[300] bg-zinc-950">
-        <div class="w-20 h-20 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.817l7-2a2 2 0 011.106 0l7 2A2 2 0 0121 5.618v9.764a2 2 0 01-1.553 1.898L15 20V13H9v7z"></path></svg>
-        </div>
-        <button onclick="document.getElementById('map-upload').click()" class="bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-xl font-bold shadow-xl shadow-blue-900/40 transition-all text-white">
-            KAART LADEN
-        </button>
-    </div>
-
-    <!-- Hidden Inputs -->
-    <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
-    <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
-
-    <script>
-        const STATE = {
-            mode: 'watcher',
-            tool: 'pan',
-            person: 'maaike',
-            destType: 'none',
-            destImg: null,
-            points: [],
-            scale: 1,
-            posX: 0,
-            posY: 0,
-            size: 24,
-            speed: 50,
-            autoCenter: false, 
-            isLive: false,
-            animProgress: 0,
-            targetIndex: 1,
-            lastTime: 0,
-            animId: null
-        };
-
-        const COLORS = { maaike: '#ef4444', orlando: '#3b82f6' };
-        let isDragging = false;
-        let startX, startY;
-
-        const viewport = document.getElementById('viewport');
-        const mapWrapper = document.getElementById('map-wrapper');
-        const mapImg = document.getElementById('map-img');
-        const canvas = document.getElementById('route-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        const trackerDot = document.getElementById('tracker-dot');
-        const destMarker = document.getElementById('dest-marker');
-        const destIconContainer = document.getElementById('dest-icon-container');
-        
-        const configContainer = document.getElementById('config-container');
-        const btnLive = document.getElementById('btn-live');
-        const btnSettings = document.getElementById('btn-settings');
-        const mainHeader = document.getElementById('main-header');
-
-        // --- UPLOAD LOGICA ---
-        function handleMapUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                mapImg.onload = () => {
-                    document.getElementById('intro-screen').classList.add('hidden');
-                    
-                    // Wacht robuust tot de browser de UI heeft opgebouwd
-                    function setupMap() {
-                        const rect = viewport.getBoundingClientRect();
-                        // Als breedte 0 is, probeer het de volgende frame opnieuw
-                        if(rect.width === 0 || rect.height === 0) {
-                            requestAnimationFrame(setupMap);
-                            return;
-                        }
-                        
-                        canvas.width = mapImg.naturalWidth;
-                        canvas.height = mapImg.naturalHeight;
-                        
-                        // Afbeelding neemt exact de hoogte van de rechthoek (viewport) over
-                        const scaleH = rect.height / mapImg.naturalHeight;
-                        STATE.scale = scaleH;
-                        
-                        STATE.posX = (rect.width - (mapImg.naturalWidth * STATE.scale)) / 2;
-                        STATE.posY = (rect.height - (mapImg.naturalHeight * STATE.scale)) / 2;
-                        STATE.points = []; 
-                        
-                        applyTransform();
-                        updateThemeColors();
-                        drawMap();
-                        checkReadyState();
-                    }
-                    
-                    setupMap();
-                };
-                mapImg.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function handleDestUpload(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                STATE.destImg = e.target.result;
-                setDest('img');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- MAP INTERACTIES ---
-        viewport.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
-        window.addEventListener('mousemove', (e) => moveInteraction(e.clientX, e.clientY));
-        window.addEventListener('mouseup', endInteraction);
-        viewport.addEventListener('mouseleave', endInteraction);
-        
-        viewport.addEventListener('touchstart', (e) => {
-            const t = e.touches[0];
-            startInteraction(t.clientX, t.clientY);
-        }, {passive: false});
-        window.addEventListener('touchmove', (e) => {
-            const t = e.touches[0];
-            moveInteraction(t.clientX, t.clientY);
-        }, {passive: false});
-        window.addEventListener('touchend', endInteraction);
-
-        function startInteraction(x, y) {
-            if (STATE.isLive) return;
-            
-            if (STATE.tool === 'pan') {
-                isDragging = true;
-                startX = x - STATE.posX;
-                startY = y - STATE.posY;
-                viewport.style.cursor = 'grabbing';
-            } else {
-                const mapCoords = getMapCoords(x, y);
-                if (STATE.tool === 'point') {
-                    STATE.points = [mapCoords];
-                    
-                    // ONMIDDELLIJK CENTREREN BIJ VAST PUNT
-                    const rect = viewport.getBoundingClientRect();
-                    STATE.posX = (rect.width / 2) - (mapCoords.x * STATE.scale);
-                    STATE.posY = (rect.height / 2) - (mapCoords.y * STATE.scale);
-                    applyTransform();
-                    
-                } else if (STATE.tool === 'route') {
-                    STATE.points.push(mapCoords);
-                }
-                drawMap();
-                checkReadyState();
-            }
-        }
-
-        function moveInteraction(x, y) {
-            if (!isDragging || STATE.tool !== 'pan') return;
-            STATE.posX = x - startX;
-            STATE.posY = y - startY;
-            applyTransform();
-        }
-
-        function endInteraction() { 
-            isDragging = false; 
-            if(STATE.tool === 'pan') viewport.style.cursor = 'grab';
-        }
-
-        function getMapCoords(clientX, clientY) {
-            const rect = mapWrapper.getBoundingClientRect();
-            return {
-                x: (clientX - rect.left) / STATE.scale,
-                y: (clientY - rect.top) / STATE.scale
-            };
-        }
-
-        function applyTransform() {
-            mapWrapper.style.transform = `translate3d(${STATE.posX}px, ${STATE.posY}px, 0) scale(${STATE.scale})`;
-        }
-
-        function changeZoom(delta) {
-            const oldScale = STATE.scale;
-            STATE.scale = Math.max(0.01, Math.min(10, STATE.scale + delta));
-            const ratio = STATE.scale / oldScale;
-
-            const rect = viewport.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            STATE.posX = centerX - (centerX - STATE.posX) * ratio;
-            STATE.posY = centerY - (centerY - STATE.posY) * ratio;
-
-            applyTransform();
-            drawMap();
-        }
-
-        // --- UI UPDATES ---
-        function setTool(tool) {
-            if (STATE.isLive) return;
-            STATE.tool = tool;
-            document.getElementById('tool-select').value = tool; // sync UI
-            viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
-        }
-
-        function updateMode() {
-            const isShield = document.getElementById('app-mode').value === 'shield';
-            STATE.mode = document.getElementById('app-mode').value;
-            
-            document.getElementById('dest-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('speed-config').style.display = isShield ? 'none' : 'block';
-            
-            const optRoute = document.getElementById('opt-route');
-            if (isShield) {
-                optRoute.style.display = 'none';
-                if(STATE.tool === 'route') {
-                    setTool('point');
-                }
-            } else {
-                optRoute.style.display = 'block';
-            }
-            
-            updateThemeColors();
-            drawMap();
-        }
-
-        function updatePerson() {
-            STATE.person = document.getElementById('person-select').value;
-            updateThemeColors();
-            drawMap();
-        }
-
-        function updateThemeColors() {
-            const color = COLORS[STATE.person];
-            document.documentElement.style.setProperty('--tracker-color', color);
-            document.getElementById('title-accent').style.color = color;
-            btnLive.style.backgroundColor = color;
-        }
-
-        function updateSize(val) {
-            STATE.size = val;
-            document.documentElement.style.setProperty('--dot-size', `${val}px`);
-        }
-
-        function setDest(type) {
-            STATE.destType = type;
-            ['none', 'home'].forEach(t => {
-                const btn = document.getElementById(`btn-dest-${t}`);
-                if(btn) {
-                    btn.classList.toggle('border-white', t === type);
-                    btn.classList.toggle('text-white', t === type);
-                    btn.classList.toggle('border-transparent', t !== type);
-                }
-            });
-            drawMap();
-        }
-
-        function clearMap() { STATE.points = []; drawMap(); checkReadyState(); }
-
-        function checkReadyState() {
-            const ok = STATE.points.length > 0;
-            btnLive.disabled = !ok;
-        }
-
-        function drawMap() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (STATE.points.length > 0) {
-                ctx.beginPath();
-                ctx.strokeStyle = COLORS[STATE.person];
-                ctx.lineWidth = 6 / STATE.scale;
-                if(STATE.points.length > 1) ctx.setLineDash([15/STATE.scale, 10/STATE.scale]);
-                ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
-                ctx.stroke();
-
-                const last = STATE.points[STATE.points.length - 1];
-                trackerDot.style.display = 'block';
-                trackerDot.style.left = last.x + 'px';
-                trackerDot.style.top = last.y + 'px';
-            } else {
-                trackerDot.style.display = 'none';
-            }
-
-            if (STATE.mode !== 'shield' && STATE.destType !== 'none' && STATE.points.length > 0) {
-                destMarker.style.display = 'block';
-                const last = STATE.points[STATE.points.length - 1];
-                destMarker.style.left = last.x + 'px';
-                destMarker.style.top = last.y + 'px';
-                if (STATE.destType === 'home') destIconContainer.innerHTML = '🏠';
-                else if (STATE.destImg) destIconContainer.innerHTML = `<img src="${STATE.destImg}">`;
-            } else { 
-                destMarker.style.display = 'none'; 
-            }
-        }
-
-        // --- LIVE LOGICA ---
-        function startLiveMode() {
-            STATE.isLive = true;
-            stopAnimation(); 
-            
-            mainHeader.style.display = 'none';
-            configContainer.style.display = 'none';
-            btnSettings.classList.remove('hidden'); 
-            
-            document.getElementById('prop-overlay-bottom').classList.remove('hidden');
-            document.getElementById('zoom-ctrls').style.display = 'none';
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            mapImg.style.filter = STATE.mode === 'shield' ? 'grayscale(0.4) contrast(1.2)' : 'saturate(1.2)';
-            
-            startAnimation();
-        }
-
-        function resetToConfig() {
-            STATE.isLive = false;
-            stopAnimation();
-            
-            mainHeader.style.display = 'flex';
-            configContainer.style.display = 'block';
-            btnSettings.classList.add('hidden'); 
-            
-            document.getElementById('prop-overlay-bottom').classList.add('hidden');
-            document.getElementById('zoom-ctrls').style.display = 'flex';
-            document.getElementById('status-text').innerText = "Systeem gereed";
-            
-            mapImg.style.filter = 'none';
-            drawMap(); 
-        }
-
-        function startAnimation() {
-            STATE.animProgress = 0;
-            STATE.targetIndex = 1;
-            STATE.lastTime = performance.now();
-            
-            if(STATE.mode === 'shield' || STATE.points.length < 2) {
-                const p = STATE.points[0];
-                updateTrackerLive(p.x, p.y);
-                setTimeout(() => { if(STATE.isLive) updateTrackerLive(p.x, p.y); }, 500);
-            } else {
-                STATE.animId = requestAnimationFrame(animLoop);
-            }
-        }
-
-        function stopAnimation() {
-            if (STATE.animId) cancelAnimationFrame(STATE.animId);
-            drawMap(); 
-        }
-
-        function animLoop(timestamp) {
-            if (!STATE.isLive) return;
-            const delta = (timestamp - STATE.lastTime) / 1000;
-            STATE.lastTime = timestamp;
-            
-            const p1 = STATE.points[STATE.targetIndex - 1];
-            const p2 = STATE.points[STATE.targetIndex];
-            const dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-            
-            if (dist > 0) STATE.animProgress += (STATE.speed * delta) / dist;
-            else STATE.animProgress = 1;
-            
-            if (STATE.animProgress >= 1) {
-                STATE.animProgress = 0;
-                STATE.targetIndex++;
-                if (STATE.targetIndex >= STATE.points.length) STATE.targetIndex = 1; 
-            }
-            
-            const curX = p1.x + (p2.x - p1.x) * STATE.animProgress;
-            const curY = p1.y + (p2.y - p1.y) * STATE.animProgress;
-            
-            updateTrackerLive(curX, curY);
-            STATE.animId = requestAnimationFrame(animLoop);
-        }
-
-        function updateTrackerLive(x, y) {
-            trackerDot.style.left = `${x}px`;
-            trackerDot.style.top = `${y}px`;
-            
-            // Auto-Center Logica tijdens loop
-            if (STATE.autoCenter && STATE.isLive) {
-                const rect = viewport.getBoundingClientRect();
-                STATE.posX = (rect.width / 2) - (x * STATE.scale);
-                STATE.posY = (rect.height / 2) - (y * STATE.scale);
-                applyTransform();
-            }
-        }
-
-        // --- RESIZE OBSERVER ---
-        let lastViewportW = 0;
-        let lastViewportH = 0;
-
-        const resizeObs = new ResizeObserver(entries => {
-            for(let entry of entries) {
-                const nw = entry.contentRect.width;
-                const nh = entry.contentRect.height;
-
-                if (lastViewportW > 0 && lastViewportH > 0 && nw > 0 && nh > 0) {
-                    const isMovingRoute = STATE.autoCenter && STATE.isLive && STATE.points.length > 1;
-                    
-                    if (!isMovingRoute) {
-                        const cx = (lastViewportW / 2 - STATE.posX) / STATE.scale;
-                        const cy = (lastViewportH / 2 - STATE.posY) / STATE.scale;
-                        STATE.posX = (nw / 2) - (cx * STATE.scale);
-                        STATE.posY = (nh / 2) - (cy * STATE.scale);
-                        applyTransform();
-                    }
-                }
-                lastViewportW = nw;
-                lastViewportH = nh;
-            }
-        });
-        resizeObs.observe(viewport);
-
     </script>
 </body>
 </html>

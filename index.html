@@ -43,27 +43,39 @@
             touch-action: none;
         }
 
-        #map-wrapper {
-            position: absolute;
-            transform-origin: 0 0;
-            will-change: transform;
-            backface-visibility: hidden;
-        }
+        /* Update deze specifieke secties in je <style> */
 
-        #map-img {
-            display: block;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: filter 0.5s;
-        }
+#map-wrapper {
+    position: absolute;
+    transform-origin: 0 0;
+    /* Forceert hardware acceleratie en stopt flikkeren */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+    transform: translateZ(0); 
+    will-change: transform;
+}
 
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
-            z-index: 2;
-        }
+#map-img {
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    /* Zorgt dat de afbeelding niet 'verspringt' bij schalen */
+    image-rendering: -webkit-optimize-contrast; 
+    transform: translateZ(0);
+}
+
+canvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 2;
+    /* Zorgt dat de lijn vloeiend blijft zonder flikkeren */
+    image-rendering: auto;
+    transform: translateZ(0);
+}
 
         /* Richtkruis in het midden */
         #center-crosshair {
@@ -257,8 +269,9 @@
             <!-- Live Prop Overlay: WATCHER MODE -->
             <div id="prop-bottom-watcher" class="absolute bottom-0 left-0 right-0 p-3 z-[170] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
                 <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <div id="watcher-img-container" class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                        <svg id="watcher-placeholder" class="w-5 h-5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <img id="watcher-profile-img" class="w-full h-full object-cover hidden">
                     </div>
                     <div class="flex-grow">
                         <h3 id="watcher-name" class="text-white font-black text-[11px] leading-tight capitalize tracking-wide">Maaike</h3>
@@ -267,7 +280,7 @@
                     </div>
                     <div class="text-right flex flex-col items-end justify-center gap-1">
                          <div class="w-7 h-7 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center border border-blue-500/30">
-                             <svg class="w-3.5 h-3.5" fill="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                          </div>
                          <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Live</span>
                     </div>
@@ -324,9 +337,13 @@
                 </select>
             </div>
 
-            <div id="watcher-extra-config" class="grid grid-cols-2 gap-2">
+            <div id="watcher-extra-config" class="grid grid-cols-3 gap-2">
                 <input type="text" id="status-input" value="Thuis" oninput="STATE.statusText = this.value" class="bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none" placeholder="Status">
                 <input type="time" id="time-input" value="09:10" onchange="STATE.updateTime = this.value" class="bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none">
+                <button onclick="document.getElementById('profile-upload').click()" class="bg-zinc-900 border border-zinc-800 text-zinc-400 text-[8px] font-black uppercase rounded-lg flex items-center justify-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Foto
+                </button>
             </div>
 
             <div class="flex gap-2 items-center">
@@ -387,6 +404,7 @@
 
     <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
     <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
+    <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="handleProfileUpload(event)">
 
     <script>
         const STATE = {
@@ -497,6 +515,20 @@
             reader.readAsDataURL(file);
         }
 
+        function handleProfileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById('watcher-profile-img');
+                const placeholder = document.getElementById('watcher-placeholder');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function resetPointPlacement() {
             STATE.pointReady = false;
             pointCheckbox.disabled = true;
@@ -565,339 +597,336 @@
         });
 
         function startInteraction(x, y) {
+            if (STATE.isPlayingPreview || STATE.isLive) return;
             isDragging = true;
             hasMovedSinceStart = false;
             startX = x - STATE.posX;
             startY = y - STATE.posY;
-
-            if (STATE.tool === 'pan' && !STATE.showPoint) {
-                viewport.style.cursor = 'grabbing';
-            } else if (STATE.tool === 'route') {
-                const mapCoords = getMapCoords(x, y);
-                STATE.points.push(mapCoords);
-                drawMap();
-                checkReadyState();
-            }
+            resetPointPlacement();
         }
 
         function moveInteraction(x, y) {
-            if (!isDragging) return;
-
-            const dx = Math.abs(x - (startX + STATE.posX));
-            const dy = Math.abs(y - (startY + STATE.posY));
-
-            if (dx > 4 || dy > 4) {
-                hasMovedSinceStart = true;
-                if (STATE.pointReady || STATE.showPoint) resetPointPlacement();
-            }
-
-            if (STATE.tool === 'pan' && !STATE.showPoint) {
-                STATE.posX = x - startX;
-                STATE.posY = y - startY;
-                applyTransform();
-            }
+            if (!isDragging || STATE.isPlayingPreview || STATE.isLive) return;
+            hasMovedSinceStart = true;
+            STATE.posX = x - startX;
+            STATE.posY = y - startY;
+            applyTransform();
         }
 
-        function togglePoint(checked) {
-            STATE.showPoint = checked;
-            if (checked) {
+        function changeZoom(delta) {
+            const oldScale = STATE.scale;
+            STATE.scale = Math.min(Math.max(STATE.scale + delta, 0.2), 5);
+            const ratio = STATE.scale / oldScale;
+            const rect = viewport.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            STATE.posX = centerX - (centerX - STATE.posX) * ratio;
+            STATE.posY = centerY - (centerY - STATE.posY) * ratio;
+            applyTransform();
+        }
+
+        function applyTransform() {
+            mapWrapper.style.transform = `translate(${STATE.posX}px, ${STATE.posY}px) scale(${STATE.scale})`;
+        }
+
+        function setTool(t) {
+            STATE.tool = t;
+            if(t === 'route') {
+                 STATE.points = [];
+                 STATE.fixedPoint = null;
+                 STATE.showPoint = false;
+                 drawMap();
+            }
+            checkReadyState();
+        }
+
+        function togglePoint(val) {
+            STATE.showPoint = val;
+            if(val) {
                 const rect = viewport.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
                 STATE.fixedPoint = {
-                    x: (rect.width / 2 - STATE.posX) / STATE.scale,
-                    y: (rect.height / 2 - STATE.posY) / STATE.scale
+                    x: (centerX - STATE.posX) / STATE.scale,
+                    y: (centerY - STATE.posY) / STATE.scale
                 };
-                viewport.style.cursor = 'not-allowed';
             } else {
                 STATE.fixedPoint = null;
-                viewport.style.cursor = 'default';
             }
             drawMap();
             checkReadyState();
         }
 
-        function getMapCoords(clientX, clientY) {
-            const rect = mapWrapper.getBoundingClientRect();
-            return { x: (clientX - rect.left) / STATE.scale, y: (clientY - rect.top) / STATE.scale };
-        }
-
-        function applyTransform() {
-            mapWrapper.style.transform = `translate3d(${STATE.posX}px, ${STATE.posY}px, 0) scale(${STATE.scale})`;
-        }
-
-        function changeZoom(delta) {
-            if(STATE.showPoint) return;
-            const oldScale = STATE.scale;
-            STATE.scale = Math.max(0.02, Math.min(10, STATE.scale + delta));
-            const ratio = STATE.scale / oldScale;
-            const rect = viewport.getBoundingClientRect();
-
-            STATE.posX = (rect.width / 2) - ((rect.width / 2) - STATE.posX) * ratio;
-            STATE.posY = (rect.height / 2) - ((rect.height / 2) - STATE.posY) * ratio;
-
+        function clearMap() {
+            STATE.points = [];
+            STATE.fixedPoint = null;
+            STATE.showPoint = false;
+            pointCheckbox.checked = false;
             resetPointPlacement();
-            applyTransform();
             drawMap();
+            checkReadyState();
         }
 
-        function setTool(tool) {
-            STATE.tool = tool;
-            document.getElementById('tool-select').value = tool;
-            viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
+        function updateSize(v) {
+            STATE.size = parseInt(v);
+            document.documentElement.style.setProperty('--dot-size', v + 'px');
         }
 
         function updateMode() {
-            const isShield = document.getElementById('app-mode').value === 'shield';
             STATE.mode = document.getElementById('app-mode').value;
-
-            document.getElementById('dest-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('speed-config').style.visibility = isShield ? 'hidden' : 'visible';
-            document.getElementById('watcher-extra-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('opt-route').style.display = isShield ? 'none' : 'block';
-
-            if (isShield && STATE.tool === 'route') setTool('pan');
-            updateThemeColors();
-            drawMap();
+            document.getElementById('watcher-extra-config').classList.toggle('hidden-ui', STATE.mode !== 'watcher');
+            document.getElementById('speed-config').classList.toggle('hidden-ui', STATE.mode !== 'watcher');
+            document.getElementById('opt-route').classList.toggle('hidden-ui', STATE.mode !== 'watcher');
+            if(STATE.mode === 'shield') setTool('pan');
+            checkReadyState();
         }
 
         function updatePerson() {
             STATE.person = document.getElementById('person-select').value;
             updateThemeColors();
-            drawMap();
         }
 
         function updateThemeColors() {
             const color = COLORS[STATE.person];
             document.documentElement.style.setProperty('--tracker-color', color);
             document.documentElement.style.setProperty('--pointer-active', color);
-            document.documentElement.style.setProperty('--pointer-dimmed', color + '4d'); // 30% alpha
-            document.getElementById('btn-live').style.backgroundColor = color;
-        }
-
-        function updateSize(val) {
-            STATE.size = val;
-            document.documentElement.style.setProperty('--dot-size', `${val}px`);
+            document.documentElement.style.setProperty('--pointer-dimmed', color.replace(')', ', 0.3)'));
+            document.getElementById('watcher-name').innerText = STATE.person;
+            document.getElementById('watcher-img-container').style.borderColor = color;
         }
 
         function setDest(type) {
             STATE.destType = type;
-            ['none', 'home'].forEach(t => {
-                const btn = document.getElementById(`btn-dest-${t}`);
-                if (btn) {
-                    btn.classList.toggle('border-white', t === type);
-                    btn.classList.toggle('text-white', t === type);
-                    btn.classList.toggle('border-transparent', t !== type);
-                }
-            });
-            drawMap();
-        }
+            const iconCont = document.getElementById('dest-icon-container');
+            const btns = {
+                none: document.getElementById('btn-dest-none'),
+                home: document.getElementById('btn-dest-home')
+            };
 
-        function clearMap() {
-            STATE.points = [];
-            resetPointPlacement();
-            drawMap();
-        }
+            Object.values(btns).forEach(b => b.classList.replace('bg-zinc-800', 'bg-zinc-900'));
+            Object.values(btns).forEach(b => b.classList.replace('border-white', 'border-transparent'));
+            Object.values(btns).forEach(b => b.classList.replace('text-white', 'text-zinc-400'));
 
-        function checkReadyState() {
-            const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
-            document.getElementById('btn-preview').disabled = !ok;
-            document.getElementById('btn-live').disabled = !ok;
+            if(btns[type]) {
+                btns[type].classList.replace('bg-zinc-900', 'bg-zinc-800');
+                btns[type].classList.replace('border-transparent', 'border-white');
+                btns[type].classList.replace('text-zinc-400', 'text-white');
+            }
+
+            iconCont.innerHTML = '';
+            if(type === 'home') iconCont.innerHTML = '🏠';
+            if(type === 'img' && STATE.destImg) iconCont.innerHTML = `<img src="${STATE.destImg}" class="w-full h-full object-cover">`;
+            
+            checkReadyState();
         }
 
         function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
-            const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
-
+            
             if (STATE.points.length > 1) {
                 ctx.beginPath();
-                ctx.strokeStyle = COLORS[STATE.person];
-                ctx.lineWidth = 6 / STATE.scale;
-                if (STATE.points.length > 1) ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
                 ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
+                for(let i=1; i<STATE.points.length; i++) {
+                    ctx.lineTo(STATE.points[i].x, STATE.points[i].y);
+                }
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 4 / STATE.scale;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
                 ctx.stroke();
+
+                ctx.strokeStyle = COLORS[STATE.person];
+                ctx.lineWidth = 2 / STATE.scale;
+                ctx.setLineDash([5 / STATE.scale, 5 / STATE.scale]);
+                ctx.stroke();
+                ctx.setLineDash([]);
             }
 
-            if (shouldShowDot) {
-                trackerDot.style.display = 'block';
-                trackerDot.style.left = activePoint.x + 'px';
-                trackerDot.style.top = activePoint.y + 'px';
-            } else { trackerDot.style.display = 'none'; }
-
-            if (STATE.mode !== 'shield' && STATE.destType !== 'none' && activePoint) {
+            if (STATE.fixedPoint) {
                 destMarker.style.display = 'block';
-                destMarker.style.left = activePoint.x + 'px';
-                destMarker.style.top = activePoint.y + 'px';
-                if (STATE.destType === 'home') {
-                    document.getElementById('dest-icon-container').innerHTML = '🏠';
-                } else if (STATE.destImg) {
-                    document.getElementById('dest-icon-container').innerHTML = `<img src="${STATE.destImg}">`;
-                }
+                destMarker.style.left = STATE.fixedPoint.x + 'px';
+                destMarker.style.top = STATE.fixedPoint.y + 'px';
+                destMarker.style.transform = `translate(-50%, -100%) scale(${1/STATE.scale})`;
             } else {
                 destMarker.style.display = 'none';
             }
         }
 
+        function checkReadyState() {
+            const hasMap = mapImg.src && mapImg.src.length > 0;
+            const hasRoute = STATE.points.length >= 2;
+            const hasShieldPoint = STATE.mode === 'shield' && STATE.fixedPoint !== null;
+            
+            document.getElementById('btn-preview').disabled = !(hasMap && hasRoute);
+            document.getElementById('btn-live').disabled = !(hasMap && (hasRoute || hasShieldPoint));
+        }
+
+        viewport.addEventListener('click', (e) => {
+            if(STATE.tool !== 'route' || STATE.isPlayingPreview || STATE.isLive) return;
+            if(hasMovedSinceStart) return;
+
+            const rect = viewport.getBoundingClientRect();
+            const x = (e.clientX - STATE.posX) / STATE.scale;
+            const y = (e.clientY - STATE.posY) / STATE.scale;
+            
+            STATE.points.push({x, y});
+            drawMap();
+            checkReadyState();
+        });
+
         function togglePreview() {
+            if(STATE.isPlayingPreview) {
+                stopAnimation();
+            } else {
+                startPreview();
+            }
+        }
+
+        function startPreview() {
             STATE.isPlayingPreview = true;
-            configContainer.classList.add('hidden-ui');
-            document.getElementById('center-crosshair').classList.add('hidden-ui');
-            enablePropOverlays();
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                updateShieldBottom(false);
-            } else { startAnimation(); }
+            STATE.animProgress = 0;
+            STATE.targetIndex = 1;
+            trackerDot.style.display = 'block';
+            document.getElementById('btn-preview').innerText = 'Stop Preview';
+            document.getElementById('btn-preview').classList.replace('bg-zinc-800', 'bg-red-600');
+            STATE.lastTime = performance.now();
+            animate();
         }
 
         function startLiveMode() {
             STATE.isLive = true;
-            stopAnimation();
-            mainHeader.classList.add('hidden-ui');
+            STATE.isPlayingPreview = false;
             configContainer.classList.add('hidden-ui');
-            document.getElementById('center-crosshair').classList.add('hidden-ui');
-            document.getElementById('zoom-ctrls').classList.add('hidden-ui');
-            enablePropOverlays();
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                updateShieldBottom(false);
+            mainHeader.classList.add('hidden-ui');
+            
+            document.getElementById('status-text').innerText = 'Live-Trace Actief';
+            document.getElementById('live-dot').classList.remove('hidden');
+            document.getElementById('prop-top-bar').classList.remove('hidden-ui');
+            document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
+
+            if(STATE.mode === 'watcher') {
+                document.getElementById('prop-bottom-watcher').classList.remove('hidden-ui');
+                document.getElementById('watcher-status').innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>${STATE.statusText}`;
+                document.getElementById('watcher-time').innerText = STATE.updateTime;
+                trackerDot.style.display = 'block';
+                STATE.animProgress = 0;
+                STATE.targetIndex = 1;
+                STATE.lastTime = performance.now();
+                animate();
             } else {
-                mapImg.style.filter = 'saturate(1.2)';
-                startAnimation();
+                document.getElementById('shield-standby-center').classList.remove('hidden-ui');
+                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
+                trackerDot.style.display = 'none';
+                if(STATE.fixedPoint) {
+                    centerOnPoint(STATE.fixedPoint.x, STATE.fixedPoint.y);
+                }
             }
         }
 
         function activateShieldLive() {
             STATE.isShieldActive = true;
             document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            updateShieldBottom(true);
-            
-            // Toon tracker direct
-            drawMap();
-            
-            mapImg.style.filter = 'grayscale(0.4) contrast(1.2)';
-            startAnimation();
+            document.getElementById('shield-status-title').innerText = 'Locatie Wordt Gedeeld';
+            document.getElementById('shield-status-title').classList.replace('text-zinc-400', 'text-blue-500');
+            document.getElementById('shield-icon-circle').classList.replace('text-zinc-500', 'text-blue-500');
+            document.getElementById('shield-icon-circle').classList.replace('border-zinc-500', 'border-blue-500');
+            document.getElementById('shield-uplink-status').innerText = 'Uplink: Live';
+            document.getElementById('shield-uplink-status').classList.replace('text-zinc-500', 'text-green-500');
+            document.getElementById('shield-stop-btn').classList.remove('hidden-ui');
+            trackerDot.style.display = 'block';
+            if(STATE.fixedPoint) {
+                trackerDot.style.left = STATE.fixedPoint.x + 'px';
+                trackerDot.style.top = STATE.fixedPoint.y + 'px';
+            }
         }
 
         function deactivateShieldLive() {
             STATE.isShieldActive = false;
             document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-            document.getElementById('viewport').classList.add('hidden-ui');
-            updateShieldBottom(false);
-            stopAnimation();
-            drawMap();
-        }
-
-        function updateShieldBottom(active) {
-            const title = document.getElementById('shield-status-title');
-            const uplink = document.getElementById('shield-uplink-status');
-            const stopBtn = document.getElementById('shield-stop-btn');
-            const iconCircle = document.getElementById('shield-icon-circle');
-
-            if (active) {
-                title.innerText = "Locatie Delen Actief";
-                title.className = "text-[11px] text-white font-black uppercase tracking-widest leading-tight";
-                uplink.innerText = "Uplink";
-                uplink.className = "text-[8px] text-green-500 font-bold uppercase animate-pulse tracking-widest";
-                stopBtn.classList.remove('hidden-ui');
-                iconCircle.style.color = COLORS[STATE.person];
-                iconCircle.style.borderColor = COLORS[STATE.person];
-            } else {
-                title.innerText = "Locatie Delen Uit";
-                title.className = "text-[11px] text-zinc-400 font-black uppercase tracking-widest leading-tight";
-                uplink.innerText = "Offline";
-                uplink.className = "text-[8px] text-zinc-500 font-bold uppercase tracking-widest";
-                stopBtn.classList.add('hidden-ui');
-                iconCircle.style.color = "#71717a";
-                iconCircle.style.borderColor = "#71717a";
-            }
-        }
-
-        function enablePropOverlays() {
-            document.getElementById('prop-top-bar').classList.remove('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
-            if (STATE.mode === 'shield') {
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            } else {
-                document.getElementById('prop-bottom-watcher').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-                document.getElementById('watcher-name').innerText = STATE.person.charAt(0).toUpperCase() + STATE.person.slice(1);
-                document.getElementById('watcher-status').innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>${STATE.statusText}`;
-                document.getElementById('watcher-time').innerText = STATE.updateTime;
-            }
+            document.getElementById('shield-status-title').innerText = 'Locatie Delen Uit';
+            document.getElementById('shield-status-title').classList.replace('text-blue-500', 'text-zinc-400');
+            document.getElementById('shield-icon-circle').classList.replace('text-blue-500', 'text-zinc-500');
+            document.getElementById('shield-icon-circle').classList.replace('border-blue-500', 'border-zinc-500');
+            document.getElementById('shield-uplink-status').innerText = 'Offline';
+            document.getElementById('shield-uplink-status').classList.replace('text-green-500', 'text-zinc-500');
+            document.getElementById('shield-stop-btn').classList.add('hidden-ui');
+            trackerDot.style.display = 'none';
         }
 
         function resetToConfig() {
-            STATE.isLive = false; STATE.isPlayingPreview = false; STATE.isShieldActive = false; stopAnimation();
-            mainHeader.classList.remove('hidden-ui'); configContainer.classList.remove('hidden-ui');
-            document.getElementById('prop-top-bar').classList.add('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-            document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            document.getElementById('zoom-ctrls').classList.remove('hidden-ui');
-            document.getElementById('center-crosshair').classList.remove('hidden-ui');
-            mapImg.style.filter = 'none';
-            drawMap();
+            stopAnimation();
+            STATE.isLive = false;
+            STATE.isShieldActive = false;
+            configContainer.classList.remove('hidden-ui');
+            mainHeader.classList.remove('hidden-ui');
+            document.querySelectorAll('.hidden-ui').forEach(el => {
+                if(el.id !== 'intro-screen' && !el.classList.contains('hidden')) el.classList.add('hidden-ui');
+            });
+            document.getElementById('status-text').innerText = 'Configuratie Modus';
+            document.getElementById('live-dot').classList.add('hidden');
+            trackerDot.style.display = 'none';
+            deactivateShieldLive();
         }
 
-        function startAnimation() {
-            STATE.animProgress = 0; STATE.targetIndex = 1; STATE.lastTime = performance.now();
-            const p = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[0] : null);
-            if (STATE.mode === 'shield' || STATE.points.length < 2) {
-                if (p) { updateTrackerLive(p.x, p.y); }
-            } else { STATE.animId = requestAnimationFrame(animLoop); }
+        function animate() {
+            if(!STATE.isPlayingPreview && !STATE.isLive) return;
+            if(STATE.mode === 'shield') return;
+
+            const now = performance.now();
+            const deltaTime = (now - STATE.lastTime) / 1000;
+            STATE.lastTime = now;
+
+            const p1 = STATE.points[STATE.targetIndex - 1];
+            const p2 = STATE.points[STATE.targetIndex];
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.hypot(dx, dy);
+            
+            const step = (STATE.speed / dist) * deltaTime;
+            STATE.animProgress += step;
+
+            if (STATE.animProgress >= 1) {
+                STATE.animProgress = 0;
+                STATE.targetIndex++;
+                if (STATE.targetIndex >= STATE.points.length) {
+                    STATE.targetIndex = 1;
+                }
+            }
+
+            const curX = p1.x + dx * STATE.animProgress;
+            const curY = p1.y + dy * STATE.animProgress;
+
+            trackerDot.style.left = curX + 'px';
+            trackerDot.style.top = curY + 'px';
+            trackerDot.style.transform = `translate(-50%, -50%) scale(${1/STATE.scale})`;
+
+            if(STATE.autoCenter) {
+                centerOnPoint(curX, curY);
+            }
+
+            STATE.animId = requestAnimationFrame(animate);
+        }
+
+        function centerOnPoint(x, y) {
+            const rect = viewport.getBoundingClientRect();
+            STATE.posX = rect.width / 2 - x * STATE.scale;
+            STATE.posY = rect.height / 2 - y * STATE.scale;
+            applyTransform();
         }
 
         function stopAnimation() {
-            if (STATE.animId) cancelAnimationFrame(STATE.animId);
-            drawMap();
+            STATE.isPlayingPreview = false;
+            cancelAnimationFrame(STATE.animId);
+            trackerDot.style.display = 'none';
+            document.getElementById('btn-preview').innerText = 'Preview Loop';
+            document.getElementById('btn-preview').classList.replace('bg-red-600', 'bg-zinc-800');
         }
 
-        function animLoop(timestamp) {
-            if (!STATE.isPlayingPreview && !STATE.isLive) return;
-            const delta = (timestamp - STATE.lastTime) / 1000; STATE.lastTime = timestamp;
-            const p1 = STATE.points[STATE.targetIndex - 1], p2 = STATE.points[STATE.targetIndex];
-            if (!p1 || !p2) return;
-            const dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-            if (dist > 0) STATE.animProgress += (STATE.speed * delta) / dist; else STATE.animProgress = 1;
-            if (STATE.animProgress >= 1) { STATE.animProgress = 0; STATE.targetIndex++; if (STATE.targetIndex >= STATE.points.length) STATE.targetIndex = 1; }
-            const curX = p1.x + (p2.x - p1.x) * STATE.animProgress, curY = p1.y + (p2.y - p1.y) * STATE.animProgress;
-            updateTrackerLive(curX, curY); STATE.animId = requestAnimationFrame(animLoop);
-        }
-
-        function updateTrackerLive(x, y) {
-            trackerDot.style.left = `${x}px`; trackerDot.style.top = `${y}px`;
-            if (STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive)) {
-                const rect = viewport.getBoundingClientRect();
-                STATE.posX = (rect.width / 2) - (x * STATE.scale); STATE.posY = (rect.height / 2) - (y * STATE.scale);
-                applyTransform();
-            }
-        }
-
-        const resizeObs = new ResizeObserver(entries => {
-            for(let entry of entries) {
-                const nw = entry.contentRect.width, nh = entry.contentRect.height;
-                if (lastViewportW > 0 && lastViewportH > 0 && nw > 0) {
-                    if (!(STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive) && STATE.points.length > 1)) {
-                        const cx = (lastViewportW / 2 - STATE.posX) / STATE.scale, cy = (lastViewportH / 2 - STATE.posY) / STATE.scale;
-                        STATE.posX = (nw / 2) - (cx * STATE.scale); STATE.posY = (nh / 2) - (cy * STATE.scale);
-                        applyTransform();
-                    }
-                }
-                lastViewportW = nw; lastViewportH = nh;
-            }
-        });
-        let lastViewportW = 0, lastViewportH = 0; resizeObs.observe(viewport);
-        
-        // Initial setup
+        // Init
         updateThemeColors();
+        updateMode();
+        document.getElementById('intro-screen').classList.remove('hidden-ui');
+
     </script>
 </body>
 </html>

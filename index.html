@@ -728,6 +728,53 @@
             }
         }
 
+        function drawMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
+            const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
+
+            // Toon de lijn ALLEEN in configuratiemodus, verberg in Live/Preview
+            if (STATE.points.length > 1 && !STATE.isPlayingPreview && !STATE.isLive) {
+                ctx.beginPath();
+                ctx.strokeStyle = COLORS[STATE.person];
+                ctx.lineWidth = 6 / STATE.scale;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
+                ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
+                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+            }
+
+            if (shouldShowDot) {
+                trackerDot.style.display = 'block';
+                if (STATE.isPlayingPreview || STATE.isLive) {
+                    // Gebruik in live/preview de specifieke tracker positie voor ultieme vloeiendheid
+                    const px = STATE.currentTrackerPos ? STATE.currentTrackerPos.x : activePoint.x;
+                    const py = STATE.currentTrackerPos ? STATE.currentTrackerPos.y : activePoint.y;
+                    trackerDot.style.left = px + 'px';
+                    trackerDot.style.top = py + 'px';
+                } else {
+                    trackerDot.style.left = activePoint.x + 'px';
+                    trackerDot.style.top = activePoint.y + 'px';
+                }
+            } else { trackerDot.style.display = 'none'; }
+
+            if (STATE.mode !== 'shield' && STATE.destType !== 'none' && activePoint) {
+                destMarker.style.display = 'block';
+                destMarker.style.left = activePoint.x + 'px';
+                destMarker.style.top = activePoint.y + 'px';
+                if (STATE.destType === 'home') {
+                    document.getElementById('dest-icon-container').innerHTML = '🏠';
+                } else if (STATE.destImg) {
+                    document.getElementById('dest-icon-container').innerHTML = `<img src="${STATE.destImg}">`;
+                }
+            } else {
+                destMarker.style.display = 'none';
+            }
+        }
+
         function checkReadyState() {
             const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
             document.getElementById('btn-preview').disabled = !ok;

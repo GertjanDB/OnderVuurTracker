@@ -739,34 +739,18 @@
             const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
             const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
 
-            if (STATE.points.length > 1) {
+            // Toon de lijn ALLEEN in configuratiemodus, verberg in Live/Preview
+            if (STATE.points.length > 1 && !STATE.isPlayingPreview && !STATE.isLive) {
                 ctx.beginPath();
                 ctx.strokeStyle = COLORS[STATE.person];
                 ctx.lineWidth = 6 / STATE.scale;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 
-                if (STATE.isPlayingPreview || STATE.isLive) {
-                    // LIVE / PREVIEW MODUS: Volle lijn, alleen ACHTER het bolletje
-                    ctx.setLineDash([]);
-                    ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                    
-                    // Teken alle gepasseerde punten
-                    for (let i = 1; i < STATE.targetIndex; i++) {
-                        ctx.lineTo(STATE.points[i].x, STATE.points[i].y);
-                    }
-                    // Teken tot de exacte huidige positie van de tracker
-                    if (STATE.currentTrackerPos) {
-                        ctx.lineTo(STATE.currentTrackerPos.x, STATE.currentTrackerPos.y);
-                    }
-                    ctx.stroke();
-                } else {
-                    // CONFIG MODUS: Toon de volledige getekende route als stippellijn
-                    ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
-                    ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                    STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
-                    ctx.stroke();
-                }
+                ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
+                ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
+                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
             }
 
             if (shouldShowDot) {

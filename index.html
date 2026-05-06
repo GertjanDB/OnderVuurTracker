@@ -386,7 +386,7 @@
             destImg: null,
             profileImg: null,
             points: [],
-            currentTrackerPos: null, // Toegevoegd om de exacte positie van de trail bij te houden
+            currentTrackerPos: null, 
             fixedPoint: null,
             showPoint: false,
             scale: 1,
@@ -728,7 +728,13 @@
             }
         }
 
-     function drawMap() {
+        function checkReadyState() {
+            const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
+            document.getElementById('btn-preview').disabled = !ok;
+            document.getElementById('btn-live').disabled = !ok;
+        }
+
+        function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
             const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
@@ -774,14 +780,6 @@
                 destMarker.style.display = 'none';
             }
         }
-
-        function checkReadyState() {
-            const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
-            document.getElementById('btn-preview').disabled = !ok;
-            document.getElementById('btn-live').disabled = !ok;
-        }
-
-        
 
         function togglePreview() {
             STATE.isPlayingPreview = true;
@@ -924,7 +922,6 @@
             let moveAmount = STATE.speed * delta;
             
             // Loop door de route heen op basis van de absolute afgelegde afstand per frame.
-            // Dit haalt álle haperingen weg, zelfs als je veel punten heel dicht op elkaar hebt getekend!
             while (moveAmount > 0 && STATE.targetIndex < STATE.points.length) {
                 let p1 = STATE.points[STATE.targetIndex - 1];
                 let p2 = STATE.points[STATE.targetIndex];
@@ -958,7 +955,7 @@
 
             updateTrackerLive(STATE.currentTrackerPos.x, STATE.currentTrackerPos.y);
             
-            // Herteken de lijn (zorgt dat de lijn perfect achter de stip aangaat)
+            // Herteken de map (hier wordt alleen nog het bolletje geüpdatet, lijnen zijn uit in deze modus)
             drawMap();
             
             STATE.animId = requestAnimationFrame(animLoop);

@@ -728,7 +728,7 @@
             }
         }
 
-        function drawMap() {
+     function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
             const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);

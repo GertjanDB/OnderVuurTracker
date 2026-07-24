@@ -1,996 +1,1859 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#09090b">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SafeTrace Pro - Precision Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --tracker-color: #ef4444;
-            --bg-color: #09090b;
-            --panel-bg: #18181b;
-            --text-color: #ffffff;
-            --border-color: #27272a;
-            --dot-size: 24px;
-            --pointer-active: #ef4444;
-            --pointer-dimmed: rgba(239, 68, 68, 0.3);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07080d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Callsheet Pro</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07080d;
+      --panel: #10131d;
+      --panel-2: #161a27;
+      --panel-3: #1d2332;
+      --text: #f7f9ff;
+      --muted: #9ca8ba;
+      --soft: #667287;
+      --line: rgba(255, 255, 255, 0.09);
+      --accent: #6ee7b7;
+      --accent-2: #60a5fa;
+      --warn: #fbbf24;
+      --danger: #fb7185;
+      --shadow: 0 30px 100px rgba(0, 0, 0, 0.45);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            touch-action: none;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        /* Viewport & Map */
-        #viewport {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            background: #000;
-            z-index: 10;
-            touch-action: none;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(96, 165, 250, 0.18), transparent 34rem),
+        radial-gradient(circle at 86% 0%, rgba(110, 231, 183, 0.13), transparent 30rem),
+        linear-gradient(180deg, #0b0d14 0%, var(--bg) 48%, #05060a 100%);
+      color: var(--text);
+    }
 
-        #map-wrapper {
-            position: absolute;
-            transform-origin: 0 0;
-            will-change: transform;
-            backface-visibility: hidden;
-        }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
-        #map-img {
-            display: block;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: filter 0.5s;
-        }
+    button {
+      border: 0;
+      cursor: pointer;
+    }
 
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
-            z-index: 2;
-        }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-        /* Richtkruis in het midden */
-        #center-crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 44px;
-            height: 44px;
-            z-index: 50;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #center-crosshair::before, #center-crosshair::after {
-            content: '';
-            position: absolute;
-            background: var(--pointer-dimmed);
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-        }
-        #center-crosshair::before { width: 3px; height: 100%; }
-        #center-crosshair::after { width: 100%; height: 3px; }
+    .app-shell {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
 
-        #center-crosshair.active::before, #center-crosshair.active::after {
-            background: var(--pointer-active);
-            box-shadow: 0 0 8px var(--pointer-active);
-        }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-        /* Tracker Dot */
-        .tracker-base {
-            background: var(--tracker-color);
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--tracker-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 2;
-        }
-        #tracker-dot {
-            position: absolute;
-            transform-origin: center;
-            transform: translate(-50%, -50%);
-            width: var(--dot-size);
-            height: var(--dot-size);
-            z-index: 10;
-            display: none;
-        }
-        .pulse {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: var(--tracker-color);
-            border-radius: 50%;
-            opacity: 0.5;
-            z-index: 1;
-            animation: pulse-animation 2s infinite ease-out;
-        }
-        @keyframes pulse-animation {
-            0% { transform: scale(0.8); opacity: 0.8; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
 
-        /* Dest Marker */
-        #dest-marker {
-            position: absolute;
-            transform: translate(-50%, -100%);
-            z-index: 5;
-            display: none;
-            pointer-events: none;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
-        }
-        .teardrop {
-            width: 36px;
-            height: 36px;
-            background-color: var(--tracker-color);
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
-        }
-        .teardrop-inner {
-            transform: rotate(45deg);
-            width: 26px;
-            height: 26px;
-            background: #18181b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid white;
-            font-size: 14px;
-        }
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      color: #07110d;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      background: linear-gradient(135deg, var(--accent), #d9f99d);
+      box-shadow: 0 12px 40px rgba(110, 231, 183, 0.32);
+    }
 
-        .hidden-ui { display: none !important; }
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--text-color); margin-top: -6px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
-        select { -webkit-appearance: none; appearance: none; }
-    </style>
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 2.6vw, 1.8rem);
+      letter-spacing: -0.06em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(110, 231, 183, 0.12);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.88fr) minmax(320px, 1.4fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.03));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px);
+    }
+
+    .sidebar {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .headline {
+      margin: 0;
+      font-size: clamp(2.15rem, 6vw, 4.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.09em;
+    }
+
+    .headline span {
+      color: var(--accent);
+    }
+
+    .lede {
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+
+    .upload-card {
+      position: relative;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 22px;
+      padding: 18px;
+      background: rgba(9, 12, 20, 0.76);
+      overflow: hidden;
+    }
+
+    .upload-card.dragging {
+      border-color: var(--accent);
+      background: rgba(110, 231, 183, 0.08);
+    }
+
+    .upload-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .upload-title h2 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .upload-button,
+    .primary,
+    .secondary,
+    .danger,
+    .ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 15px;
+      padding: 12px 14px;
+      min-height: 44px;
+      font-weight: 850;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .upload-button:hover,
+    .primary:hover,
+    .secondary:hover,
+    .danger:hover,
+    .ghost:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      color: #06110d;
+      background: linear-gradient(135deg, var(--accent), #bef264);
+      box-shadow: 0 18px 50px rgba(110, 231, 183, 0.25);
+    }
+
+    .secondary {
+      color: var(--text);
+      border: 1px solid rgba(96, 165, 250, 0.34);
+      background: rgba(96, 165, 250, 0.13);
+    }
+
+    .danger {
+      color: #fff1f2;
+      border: 1px solid rgba(251, 113, 133, 0.36);
+      background: rgba(251, 113, 133, 0.13);
+    }
+
+    .ghost {
+      color: var(--muted);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .upload-button {
+      width: 100%;
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+
+    .hint {
+      color: var(--soft);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin: 10px 0 0;
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+      display: none;
+    }
+
+    .progress-track {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      transition: width 350ms ease;
+    }
+
+    .parse-log {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 9px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      color: var(--soft);
+      font-size: 0.76rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    select,
+    input[type="search"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      outline: none;
+      color: var(--text);
+      background: rgba(7, 9, 15, 0.74);
+      padding: 12px 13px;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: 9px;
+      color: #c8d2df;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .check {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #062016;
+      background: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(310px, 0.9fr) minmax(360px, 1.2fr);
+      gap: 18px;
+      padding: 18px;
+      min-height: 780px;
+    }
+
+    .phone-shell {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      max-width: 430px;
+      width: 100%;
+      margin: 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 42px;
+      padding: 12px;
+      background: linear-gradient(160deg, #222839, #080a11 45%);
+      box-shadow: 0 35px 95px rgba(0, 0, 0, 0.5);
+    }
+
+    .phone {
+      position: relative;
+      min-height: 740px;
+      overflow: hidden;
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background:
+        radial-gradient(circle at 20% -10%, rgba(96, 165, 250, 0.2), transparent 20rem),
+        linear-gradient(180deg, #111522 0%, #090b12 100%);
+    }
+
+    .watermark {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      z-index: 8;
+      opacity: 0.14;
+      background-image: repeating-linear-gradient(-28deg, transparent 0 50px, rgba(255, 255, 255, 0.14) 51px 52px);
+    }
+
+    .watermark span {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 950;
+      transform: rotate(-28deg);
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .phone.stealth .watermark {
+      display: block;
+    }
+
+    .phone-top {
+      padding: 18px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .production-title {
+      margin: 4px 0 0;
+      font-size: 1.24rem;
+      letter-spacing: -0.055em;
+      line-height: 1.05;
+    }
+
+    .weather-card {
+      min-width: 86px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .weather-card b {
+      display: block;
+      font-size: 1.26rem;
+      letter-spacing: -0.05em;
+    }
+
+    .weather-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      margin-top: 1px;
+    }
+
+    .day-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 18px 14px;
+      scrollbar-width: none;
+    }
+
+    .day-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-chip {
+      flex: 0 0 auto;
+      min-width: 86px;
+      padding: 10px;
+      border-radius: 17px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      text-align: left;
+    }
+
+    .day-chip.active {
+      color: #07110d;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), #bef264);
+    }
+
+    .day-chip strong {
+      display: block;
+      font-size: 0.86rem;
+    }
+
+    .day-chip span {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.72rem;
+      opacity: 0.78;
+    }
+
+    .phone-scroll {
+      height: 610px;
+      overflow-y: auto;
+      padding: 0 18px 112px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .now-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 18px;
+      border: 1px solid rgba(110, 231, 183, 0.25);
+      background:
+        linear-gradient(135deg, rgba(110, 231, 183, 0.17), rgba(96, 165, 250, 0.11)),
+        rgba(255, 255, 255, 0.055);
+    }
+
+    .now-card:after {
+      content: "";
+      position: absolute;
+      right: -32px;
+      top: -42px;
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      background: rgba(110, 231, 183, 0.13);
+    }
+
+    .now-card h2 {
+      position: relative;
+      margin: 8px 0 8px;
+      font-size: 1.8rem;
+      letter-spacing: -0.075em;
+      line-height: 0.96;
+      z-index: 1;
+    }
+
+    .now-card p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: #d9e2ef;
+      line-height: 1.4;
+    }
+
+    .quick-actions {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .action-tile {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 17px;
+      padding: 12px;
+      color: var(--text);
+      background: rgba(5, 7, 12, 0.56);
+      text-align: left;
+      font-weight: 850;
+    }
+
+    .action-tile span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .section {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .section summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 900;
+    }
+
+    .section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .count {
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .section-body {
+      border-top: 1px solid var(--line);
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .row-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 17px;
+      padding: 12px;
+      background: rgba(5, 7, 12, 0.38);
+    }
+
+    .row-card.editable {
+      outline: 1px dashed rgba(110, 231, 183, 0.6);
+    }
+
+    .row-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .row-card h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      letter-spacing: -0.03em;
+    }
+
+    .row-card p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .time {
+      color: var(--accent);
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .mini-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #cfe5ff;
+      background: rgba(96, 165, 250, 0.09);
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 10px;
+      padding-left: 18px;
+    }
+
+    .timeline:before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 7px;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .timeline-item {
+      position: relative;
+    }
+
+    .timeline-item:before {
+      content: "";
+      position: absolute;
+      left: -16px;
+      top: 9px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--soft);
+      box-shadow: 0 0 0 4px #0f131d;
+    }
+
+    .timeline-item.current:before {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(110, 231, 183, 0.16), 0 0 24px rgba(110, 231, 183, 0.7);
+    }
+
+    .timeline-item.done {
+      opacity: 0.55;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(7, 9, 15, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-btn {
+      display: grid;
+      place-items: center;
+      gap: 3px;
+      min-height: 48px;
+      border-radius: 17px;
+      color: var(--soft);
+      background: transparent;
+      font-size: 0.72rem;
+      font-weight: 850;
+    }
+
+    .nav-btn.active {
+      color: #07110d;
+      background: var(--accent);
+    }
+
+    .details {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tool-card {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(10, 13, 22, 0.66);
+    }
+
+    .tool-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .tool-head h2 {
+      margin: 0;
+      letter-spacing: -0.05em;
+    }
+
+    .tool-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .metric b {
+      display: block;
+      font-size: 1.45rem;
+      letter-spacing: -0.07em;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .search-results,
+    .approval-list,
+    .notes-list,
+    .frequency-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .approval-row,
+    .note-row,
+    .freq-row,
+    .result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 11px;
+      color: #dbe6f5;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .approval-row span,
+    .note-row span,
+    .freq-row span,
+    .result-row span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .toggle {
+      position: relative;
+      width: 52px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #202637;
+      flex: 0 0 auto;
+    }
+
+    .toggle:before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .toggle.on {
+      background: rgba(110, 231, 183, 0.25);
+      border-color: rgba(110, 231, 183, 0.4);
+    }
+
+    .toggle.on:before {
+      transform: translateX(22px);
+      background: var(--accent);
+    }
+
+    .qr {
+      width: 112px;
+      height: 112px;
+      border-radius: 18px;
+      padding: 10px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .qr i {
+      border-radius: 2px;
+      background: #0a0d14;
+    }
+
+    .qr i:nth-child(3n),
+    .qr i:nth-child(5n + 1),
+    .qr i:nth-child(11),
+    .qr i:nth-child(22),
+    .qr i:nth-child(35),
+    .qr i:nth-child(49) {
+      background: transparent;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 20;
+      transform: translate(-50%, 130%);
+      min-width: min(420px, calc(100vw - 32px));
+      border: 1px solid rgba(110, 231, 183, 0.35);
+      border-radius: 18px;
+      padding: 13px 16px;
+      color: #eafff6;
+      background: rgba(10, 18, 17, 0.95);
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.44);
+      transition: transform 220ms ease;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-shell {
+        position: relative;
+        top: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        width: 100%;
+        padding: 14px 10px 26px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .sidebar,
+      .workspace {
+        padding: 12px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-shell {
+        padding: 8px;
+        border-radius: 32px;
+      }
+
+      .phone {
+        border-radius: 25px;
+        min-height: 706px;
+      }
+    }
+  </style>
 </head>
 <body>
-
-    <div id="main-header" class="p-3 px-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800 z-[200] relative pt-[env(safe-area-inset-top,12px)]">
-        <div class="flex-grow">
-            <h1 class="text-base font-black italic tracking-tighter text-zinc-400 uppercase flex items-center gap-2">
-                <span id="live-dot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse hidden"></span>
-                TRACKER<span class="text-blue-500 underline">PRO</span>
-            </h1>
-            <p id="status-text" class="text-[9px] text-zinc-500 font-mono uppercase tracking-widest leading-none mt-0.5">Configuratie Modus</p>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">CP</div>
+        <div>
+          <h1>Callsheet Pro</h1>
+          <p>The call sheet, finally usable.</p>
         </div>
-    </div>
+      </div>
+      <div class="status-pill" aria-live="polite">
+        <span class="status-dot"></span>
+        <span id="syncStatus">Offline ready after first sync</span>
+      </div>
+    </header>
 
-    <div id="app-content" class="flex-grow flex flex-col overflow-hidden">
-
-        <div id="preview-area" class="flex-grow relative bg-black overflow-hidden transition-all duration-300 min-h-0">
-
-            <div id="prop-top-bar" class="absolute top-0 left-0 right-0 p-3 pt-[calc(12px+env(safe-area-inset-top,0px))] flex items-center gap-2.5 z-[180] hidden-ui bg-gradient-to-b from-black/80 to-transparent">
-                <h1 class="text-[14px] font-black italic tracking-tighter text-white mr-1 drop-shadow-md">TRACKER<span class="text-blue-500">PRO</span></h1>
-
-                <div class="flex-grow bg-zinc-900/70 backdrop-blur-md border border-white/10 rounded-full flex items-center px-3 py-1.5 shadow-inner">
-                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <span class="text-[10px] text-zinc-400 ml-2 uppercase font-bold tracking-widest text-ellipsis overflow-hidden whitespace-nowrap">Zoeken...</span>
-                </div>
-
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg flex-shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </button>
-
-                <button onclick="resetToConfig()" class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg flex-shrink-0">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path></svg>
-                </button>
-            </div>
-
-            <div id="prop-side-buttons" class="absolute right-3 top-[100px] flex flex-col gap-2.5 z-[180] hidden-ui">
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-                </button>
-                <button class="w-8 h-8 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 shadow-lg shadow-black/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </button>
-                <button class="w-8 h-8 rounded-full bg-red-600/90 backdrop-blur-md border border-red-400 flex items-center justify-center text-white font-black text-[9px] active:scale-95 shadow-lg shadow-red-900/50">SOS</button>
-            </div>
-
-            <div id="shield-standby-center" class="absolute inset-0 z-[150] flex flex-col items-center justify-center bg-zinc-950 hidden-ui">
-                <div class="w-20 h-20 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-xl">
-                    <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </div>
-                <h2 class="text-lg font-black uppercase mb-2 text-white tracking-wide">Locatie Delen Uit</h2>
-                <p class="text-zinc-500 mb-10 text-[10px] max-w-[220px] text-center leading-relaxed">Je locatie wordt momenteel niet gedeeld. Tik op de knop om te starten.</p>
-                <button onclick="activateShieldLive()" class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] text-white shadow-xl shadow-blue-900/40 transition-all active:scale-95 border border-blue-400/30">
-                    LOCATIE DELEN
-                </button>
-            </div>
-
-            <div id="center-crosshair"></div>
-
-            <div id="zoom-ctrls" class="absolute top-3 right-3 z-[100] flex flex-col gap-1.5">
-                <button onclick="changeZoom(0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">+</button>
-                <button onclick="changeZoom(-0.3)" class="w-8 h-8 bg-zinc-900/80 backdrop-blur text-white rounded-full font-black text-lg border border-zinc-700 shadow-lg active:scale-95 transition-transform flex items-center justify-center pb-0.5">-</button>
-            </div>
-
-            <div id="viewport">
-                <div id="map-wrapper">
-                    <img id="map-img" alt="Kaart">
-                    <canvas id="route-canvas"></canvas>
-                    <div id="dest-marker"><div class="teardrop"><div class="teardrop-inner" id="dest-icon-container"></div></div></div>
-                    <div id="tracker-dot">
-                        <div class="tracker-base"><div class="pulse"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="prop-bottom-watcher" class="absolute bottom-0 left-0 right-0 p-3 z-[170] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
-                <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
-                    <div id="watcher-avatar-img" class="w-10 h-10 rounded-full border-[2px] border-[var(--tracker-color)] overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    </div>
-                    <div class="flex-grow">
-                        <h3 id="watcher-name" class="text-white font-black text-[11px] leading-tight capitalize tracking-wide">Maaike</h3>
-                        <p id="watcher-status" class="text-zinc-300 text-[9px] font-medium flex items-center mt-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>Thuis</p>
-                        <p class="text-zinc-500 text-[8px] font-mono mt-0.5 uppercase tracking-widest">Update: <span id="watcher-time">09:10</span></p>
-                    </div>
-                    <div class="text-right flex flex-col items-end justify-center gap-1">
-                         <div class="w-7 h-7 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center border border-blue-500/30">
-                             <svg class="w-3.5 h-3.5" fill="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                         </div>
-                         <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Live</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="prop-bottom-shield" class="absolute bottom-0 left-0 right-0 p-3 z-[170] hidden-ui bg-gradient-to-t from-black/90 to-transparent pt-12 pb-[max(env(safe-area-inset-bottom,16px),16px)]">
-                <div class="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 flex justify-between items-center shadow-2xl">
-                    <div class="flex items-center gap-2.5">
-                        <div id="shield-icon-circle" class="w-8 h-8 overflow-hidden rounded-full border-2 border-zinc-500 text-zinc-500 flex items-center justify-center bg-zinc-900">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-                        </div>
-                        <div>
-                            <p id="shield-status-title" class="text-[11px] text-zinc-400 font-black uppercase tracking-widest leading-tight">Locatie Delen Uit</p>
-                            <p class="text-[9px] text-zinc-500 font-mono mt-0.5 tracking-wider">Mijn Apparaat</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <p id="shield-uplink-status" class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Offline</p>
-                        </div>
-                        <button id="shield-stop-btn" onclick="deactivateShieldLive()" class="hidden-ui py-2 px-3 bg-red-600/20 text-red-500 border border-red-500/50 rounded-lg text-[8px] font-black uppercase active:scale-95 transition-transform flex items-center justify-center">
-                            STOP
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+    <main class="hero">
+      <aside class="panel sidebar">
+        <div>
+          <h2 class="headline">Upload. Parse. <span>Shoot.</span></h2>
+          <p class="lede">A production-day app inspired by the Callsheet Pro mobile experience: background parsing, a live day screen, one-tap crew and maps, stealth sharing, notes, exports, and synced sound frequencies.</p>
         </div>
 
-        <div id="config-container" class="flex-none bg-[var(--panel-bg)] border-t border-zinc-800 p-3 flex flex-col gap-2.5 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
-
-            <div class="text-[9px] text-zinc-500 text-right font-mono tracking-wider mb-1">v1.0.6</div>
-
-            <button onclick="toggleFullscreen()" class="w-full py-2 bg-zinc-900 text-zinc-400 rounded-lg text-[9px] font-black uppercase border border-zinc-800 active:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
-                ⛶ Schakel Fullscreen
-            </button>
-
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('map-upload').click()" class="flex-1 py-2 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[8px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Kaart Uploaden
-                </button>
-                <button onclick="document.getElementById('profile-upload').click()" class="flex-1 py-2 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[8px] border border-zinc-700 active:bg-zinc-700 transition-all flex items-center justify-center gap-1.5">
-                    <div id="profile-preview-circle" class="w-4 h-4 rounded-full bg-zinc-900 border border-zinc-500 overflow-hidden flex items-center justify-center shrink-0">
-                        <svg class="w-2.5 h-2.5 text-zinc-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-                    </div>
-                    Profiel Foto
-                </button>
+        <section class="upload-card" id="dropZone">
+          <div class="upload-title">
+            <h2>Import call sheet</h2>
+            <span class="badge">PDF DOC XLS PHOTO</span>
+          </div>
+          <button class="upload-button" id="chooseFile" type="button">Choose a call sheet</button>
+          <input class="hidden" id="fileInput" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*">
+          <p class="hint">Drop in a file or use the demo data. This prototype simulates AI extraction locally and keeps the parsed sheet on this device.</p>
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="parse-log">
+              <span id="parseStep">Waiting</span>
+              <span id="parsePct">0%</span>
             </div>
+          </div>
+        </section>
 
-            <div class="grid grid-cols-2 gap-2">
-                <select id="app-mode" onchange="updateMode()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-2 rounded-lg outline-none">
-                    <option value="watcher">👁️ Iemand Volgen</option>
-                    <option value="shield">🛡️ Mijn Locatie</option>
-                </select>
-                <select id="person-select" onchange="updatePerson()" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 pr-2 rounded-lg outline-none">
-                    <option value="maaike">🔴 Maaike</option>
-                    <option value="orlando">🔵 Orlando</option>
-                </select>
-            </div>
-
-            <div id="watcher-extra-config" class="grid grid-cols-2 gap-2">
-                <input type="text" id="status-input" value="Thuis" oninput="STATE.statusText = this.value" class="bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none" placeholder="Status">
-                <input type="time" id="time-input" value="09:10" onchange="STATE.updateTime = this.value" class="bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none">
-            </div>
-
-            <div class="flex gap-2 items-center">
-                <div class="relative flex-grow">
-                    <select id="tool-select" onchange="setTool(this.value)" class="w-full bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold p-2 rounded-lg outline-none">
-                        <option value="pan">🖐️ Kaart Verslepen</option>
-                        <option id="opt-route" value="route">🗺️ Teken Volgroute</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 p-2 rounded-lg">
-                    <input type="checkbox" id="point-toggle" disabled onchange="togglePoint(this.checked)" class="w-3.5 h-3.5 accent-blue-600 rounded cursor-not-allowed">
-                    <span id="point-label" class="text-[8px] font-black uppercase text-zinc-600">Vast punt</span>
-                </div>
-                <button onclick="undoPoint()" class="px-3 py-2 bg-zinc-900 border border-zinc-800 text-yellow-500 rounded-lg text-[8px] font-black uppercase tracking-widest active:bg-zinc-800 transition-colors">Undo</button>
-                <button onclick="clearMap()" class="px-3 py-2 bg-zinc-900 border border-zinc-800 text-red-500 rounded-lg text-[8px] font-black uppercase tracking-widest active:bg-zinc-800 transition-colors">Wis</button>
-            </div>
-
-            <div id="dest-config" class="grid grid-cols-3 gap-2">
-                <button id="btn-dest-none" onclick="setDest('none')" class="py-1.5 bg-zinc-800 border-2 border-white rounded-lg text-[8px] font-bold text-white uppercase text-center">Geen Icoon</button>
-                <button id="btn-dest-home" onclick="setDest('home')" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase text-center">🏠 Home</button>
-                <button onclick="document.getElementById('dest-upload').click()" class="py-1.5 bg-zinc-900 border-2 border-transparent rounded-lg text-[8px] font-bold text-zinc-400 uppercase text-center">📸 Foto</button>
-            </div>
-
-            <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800 flex flex-col gap-2">
-                <div class="flex gap-3">
-                    <div class="flex-1 space-y-1">
-                        <div class="text-[8px] text-zinc-400 uppercase font-black px-1">Grootte</div>
-                        <input type="range" id="size-slider" min="10" max="60" value="24" oninput="updateSize(this.value)">
-                    </div>
-                    <div class="flex-1 space-y-1" id="speed-config">
-                        <div class="text-[8px] text-zinc-400 uppercase font-black px-1">Snelheid</div>
-                        <input type="range" id="speed-slider" min="10" max="200" value="50" oninput="STATE.speed = parseInt(this.value)">
-                    </div>
-                </div>
-                <div class="flex items-center pt-1.5 border-t border-zinc-800/50">
-                    <label class="flex items-center gap-2 cursor-pointer w-full">
-                        <input type="checkbox" id="auto-center-toggle" onchange="STATE.autoCenter = this.checked" class="w-3.5 h-3.5 accent-blue-600 rounded">
-                        <span class="text-[9px] text-zinc-400 uppercase font-black mt-0.5">Auto-Center Live</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <button id="btn-preview" onclick="togglePreview()" class="py-2.5 bg-zinc-800 text-white rounded-lg font-black uppercase tracking-widest text-[8px] disabled:opacity-30" disabled>Preview Loop</button>
-                <button id="btn-live" onclick="startLiveMode()" class="py-2.5 bg-blue-600 text-white rounded-lg font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-900/30 disabled:opacity-30 active:scale-95 transition-transform" disabled>Start Live</button>
-            </div>
+        <div class="controls">
+          <div class="field">
+            <label for="personSelect">Made for you</label>
+            <select id="personSelect"></select>
+          </div>
+          <div class="field">
+            <label for="unitSelect">Unit filter</label>
+            <select id="unitSelect"></select>
+          </div>
+          <button class="primary" id="demoButton" type="button">Load demo call sheet</button>
+          <button class="secondary" id="editButton" type="button">Edit any row</button>
+          <button class="ghost" id="notifyButton" type="button">Push update to crew</button>
         </div>
-    </div>
 
-    <input type="file" id="map-upload" class="hidden" accept="image/*" onchange="handleMapUpload(event)">
-    <input type="file" id="dest-upload" class="hidden" accept="image/*" onchange="handleDestUpload(event)">
-    <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="handleProfileUpload(event)">
+        <ul class="feature-list">
+          <li><span class="check">✓</span><span>Day card answers what you need right now: your call time before call, current scene during the day.</span></li>
+          <li><span class="check">✓</span><span>AI-style search across scenes, crew, locations, notes, and frequency data.</span></li>
+          <li><span class="check">✓</span><span>Stealth share mode with NDA approval, watermark, view log, and kill switch.</span></li>
+        </ul>
+      </aside>
 
-    <script>
-        const STATE = {
-            mode: 'watcher',
-            tool: 'pan',
-            person: 'maaike',
-            statusText: 'Thuis',
-            updateTime: '09:10',
-            destType: 'none',
-            destImg: null,
-            profileImg: null,
-            points: [],
-            currentTrackerPos: null, 
-            fixedPoint: null,
-            showPoint: false,
-            scale: 1,
-            posX: 0,
-            posY: 0,
-            size: 24,
-            speed: 50,
-            autoCenter: false,
-            isPlayingPreview: false,
-            isLive: false,
-            animProgress: 0,
-            targetIndex: 1,
-            lastTime: 0,
-            animId: null,
-            isShieldActive: false,
-            pointReady: false
-        };
+      <section class="panel workspace" aria-label="Callsheet Pro app">
+        <div class="phone-shell">
+          <div class="phone" id="phone">
+            <div class="watermark"><span id="watermarkText">STEALTH VIEW</span></div>
+            <div class="phone-top">
+              <div>
+                <div class="eyebrow" id="dayMeta">Day 1 of 3</div>
+                <h2 class="production-title" id="productionTitle">Loading production</h2>
+              </div>
+              <div class="weather-card">
+                <b id="weatherTemp">62</b>
+                <span id="weatherLabel">Cloudy</span>
+              </div>
+            </div>
+            <div class="day-strip" id="dayStrip"></div>
+            <div class="phone-scroll" id="phoneScroll"></div>
+            <nav class="bottom-nav" aria-label="App tabs">
+              <button class="nav-btn active" data-tab="day" type="button">Day</button>
+              <button class="nav-btn" data-tab="search" type="button">Search</button>
+              <button class="nav-btn" data-tab="share" type="button">Share</button>
+              <button class="nav-btn" data-tab="notes" type="button">Notes</button>
+              <button class="nav-btn" data-tab="log" type="button">Log</button>
+            </nav>
+          </div>
+        </div>
 
-        const COLORS = { maaike: '#ef4444', orlando: '#3b82f6' };
-        let isDragging = false;
-        let startX, startY;
-        let initialPinchDist = null;
-        let hasMovedSinceStart = false;
+        <div class="details">
+          <section class="tool-card">
+            <div class="tool-head">
+              <div>
+                <h2>Production cockpit</h2>
+                <p>Manage multi-day call sheets, check sync state, and see what the parsed file produced.</p>
+              </div>
+              <span class="badge" id="editState">View mode</span>
+            </div>
+            <div class="grid-2">
+              <div class="metric"><b id="metricCrew">0</b><span>Crew and cast contacts</span></div>
+              <div class="metric"><b id="metricLocations">0</b><span>Locations with maps and parking</span></div>
+              <div class="metric"><b id="metricScenes">0</b><span>Schedule items today</span></div>
+              <div class="metric"><b id="metricWrap">--:--</b><span>Estimated wrap</span></div>
+            </div>
+          </section>
 
-        const viewport = document.getElementById('viewport');
-        const mapWrapper = document.getElementById('map-wrapper');
-        const mapImg = document.getElementById('map-img');
-        const canvas = document.getElementById('route-canvas');
-        const ctx = canvas.getContext('2d');
-        const trackerDot = document.getElementById('tracker-dot');
-        const destMarker = document.getElementById('dest-marker');
-        const configContainer = document.getElementById('config-container');
-        const mainHeader = document.getElementById('main-header');
-        const pointCheckbox = document.getElementById('point-toggle');
-        const pointLabel = document.getElementById('point-label');
-        const crosshair = document.getElementById('center-crosshair');
+          <section class="tool-card">
+            <div class="tool-head">
+              <div>
+                <h2>AI search</h2>
+                <p>Ask plain language questions like "who is the gaffer", "parking", or "hospital scene".</p>
+              </div>
+            </div>
+            <input id="searchBox" type="search" placeholder="Ask across all call sheets">
+            <div class="search-results" id="searchResults"></div>
+          </section>
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
+          <section class="tool-card">
+            <div class="tool-head">
+              <div>
+                <h2>Stealth sharing</h2>
+                <p>Protected links require NDA approval and add forensic watermarks to every viewer.</p>
+              </div>
+              <button class="toggle" id="stealthToggle" type="button" aria-label="Toggle stealth mode"></button>
+            </div>
+            <div class="grid-2">
+              <button class="secondary" id="shareButton" type="button">Copy crew link</button>
+              <button class="danger" id="killButton" type="button">Kill access</button>
+            </div>
+            <div class="approval-list" id="approvalList"></div>
+          </section>
+
+          <section class="tool-card">
+            <div class="tool-head">
+              <div>
+                <h2>Sound department</h2>
+                <p>A shared wireless frequency list synced across the production.</p>
+              </div>
+            </div>
+            <div class="frequency-list" id="frequencyList"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const storageKey = "callsheet-pro-static-state-v2";
+
+    const demoSheet = {
+      production: "Night Market",
+      shareCode: "NM-4827",
+      timezone: "Europe/London",
+      people: [
+        { id: "mia", name: "Mia Chen", role: "Sound Mixer", phone: "+442071838301", call: "06:15", department: "Sound" },
+        { id: "rachel", name: "Rachel T.", role: "Line Producer", phone: "+13105550119", call: "05:30", department: "Production" },
+        { id: "cloe", name: "Cloe Martin", role: "1st Assistant Director", phone: "+442071838442", call: "05:45", department: "Direction" },
+        { id: "omar", name: "Omar Webb", role: "Gaffer", phone: "+442071838118", call: "06:00", department: "Electric" },
+        { id: "nina", name: "Nina Park", role: "Key Grip", phone: "+442071838229", call: "06:00", department: "Grip" },
+        { id: "falk", name: "Falk Otto", role: "Boom Operator", phone: "+4915112345678", call: "06:15", department: "Sound" }
+      ],
+      approvals: [
+        { name: "Cloe Martin", status: "Approved", seen: "05:41" },
+        { name: "Omar Webb", status: "Pending NDA", seen: "Not opened" },
+        { name: "Nina Park", status: "Approved", seen: "05:52" }
+      ],
+      days: [
+        {
+          id: "d1",
+          label: "Day 1",
+          date: "Mon 18",
+          unit: "Main Unit",
+          weather: { temp: "62", label: "Cloudy", wind: "8 mph" },
+          call: "05:30",
+          wrap: "18:40",
+          tomorrow: "07:00 at Warehouse 4",
+          locations: [
+            { name: "Unit Base", address: "Trinity Buoy Wharf, London E14", parking: "Crew parking in Dock Road overflow", maps: "https://maps.google.com/?q=Trinity+Buoy+Wharf+London" },
+            { name: "Night Market Set", address: "Leadenhall Market, London EC3V", parking: "No street parking. Shuttle every 12 min.", maps: "https://maps.google.com/?q=Leadenhall+Market+London" }
+          ],
+          schedule: [
+            { time: "05:30", end: "06:00", unit: "All Units", title: "Crew call", detail: "Breakfast at Unit Base. Safety briefing at 05:50.", scene: "Prep" },
+            { time: "06:00", end: "07:10", unit: "Main Unit", title: "Blocking and rehearsals", detail: "Market chase beats, Steadicam and extras reset.", scene: "12A" },
+            { time: "07:10", end: "10:00", unit: "Main Unit", title: "Scene 12A - Market chase", detail: "Mia follows Ravi through the closed market.", scene: "12A" },
+            { time: "10:15", end: "12:30", unit: "Second Unit", title: "Insert unit - stalls and signage", detail: "Pickup plates, phones, and vendor hands.", scene: "12B" },
+            { time: "12:30", end: "13:15", unit: "All Units", title: "Lunch", detail: "Hot lunch at Unit Base.", scene: "Meal" },
+            { time: "13:15", end: "16:20", unit: "Main Unit", title: "Scene 14 - Hospital reveal", detail: "Exterior reveal dressed as hospital entrance.", scene: "14" },
+            { time: "16:35", end: "18:40", unit: "Main Unit", title: "Scene 15 - Rooftop call", detail: "Golden-hour phone call, long lens, city background.", scene: "15" }
+          ],
+          notes: [
+            { at: "05:48", body: "Ask camera for 50mm close focus before Scene 14." },
+            { at: "06:02", body: "Parking marshal says Dock Road gate closes at 19:15." }
+          ],
+          frequencies: [
+            { label: "Boom A", value: "606.125 MHz", owner: "Falk" },
+            { label: "Lavs Block 1", value: "608.300 MHz", owner: "Mia" },
+            { label: "IFB Director", value: "611.775 MHz", owner: "Cloe" }
+          ]
+        },
+        {
+          id: "d2",
+          label: "Day 2",
+          date: "Tue 19",
+          unit: "Main Unit",
+          weather: { temp: "66", label: "Light rain", wind: "11 mph" },
+          call: "07:00",
+          wrap: "19:10",
+          tomorrow: "06:40 at Stage C",
+          locations: [
+            { name: "Warehouse 4", address: "Fish Island, London E3", parking: "Permit only. Production vans enter south gate.", maps: "https://maps.google.com/?q=Fish+Island+London" }
+          ],
+          schedule: [
+            { time: "07:00", end: "08:10", unit: "All Units", title: "Crew call and prelight", detail: "Wet weather cover in holding.", scene: "Prep" },
+            { time: "08:10", end: "11:30", unit: "Main Unit", title: "Scene 22 - Warehouse argument", detail: "Two-hander with practical rain on windows.", scene: "22" },
+            { time: "11:45", end: "12:30", unit: "All Units", title: "Lunch", detail: "Catering inside Stage B.", scene: "Meal" },
+            { time: "12:30", end: "16:50", unit: "Main Unit", title: "Scene 24 - Evidence wall", detail: "Macro inserts and handheld coverage.", scene: "24" },
+            { time: "17:10", end: "19:10", unit: "Second Unit", title: "Drive-bys", detail: "Rain bars and process plates.", scene: "26" }
+          ],
+          notes: [],
+          frequencies: [
+            { label: "Boom A", value: "606.125 MHz", owner: "Falk" },
+            { label: "Camera Hop", value: "614.500 MHz", owner: "Mia" }
+          ]
+        },
+        {
+          id: "d3",
+          label: "Day 3",
+          date: "Wed 20",
+          unit: "Stage Unit",
+          weather: { temp: "64", label: "Clear", wind: "5 mph" },
+          call: "06:40",
+          wrap: "17:45",
+          tomorrow: "Production wrap",
+          locations: [
+            { name: "Stage C", address: "3 Mills Studios, London E3", parking: "Lot C. Badge required.", maps: "https://maps.google.com/?q=3+Mills+Studios+London" }
+          ],
+          schedule: [
+            { time: "06:40", end: "07:20", unit: "All Units", title: "Crew call", detail: "Stage safety induction for new day players.", scene: "Prep" },
+            { time: "07:20", end: "10:45", unit: "Stage Unit", title: "Scene 31 - Interview room", detail: "Controlled set, whisper dialogue.", scene: "31" },
+            { time: "11:00", end: "11:45", unit: "All Units", title: "Lunch", detail: "Early lunch due child actor turnaround.", scene: "Meal" },
+            { time: "11:45", end: "17:45", unit: "Stage Unit", title: "Scene 33 - Confession", detail: "Emotional finale. Closed set after rehearsal.", scene: "33" }
+          ],
+          notes: [],
+          frequencies: [
+            { label: "Boom A", value: "606.125 MHz", owner: "Falk" },
+            { label: "Lavs Block 2", value: "617.250 MHz", owner: "Mia" }
+          ]
         }
+      ]
+    };
 
-        function handleMapUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
+    const state = {
+      sheet: loadSheet(),
+      activeDay: 0,
+      tab: "day",
+      personId: "mia",
+      unit: "All Units",
+      editMode: false,
+      stealth: false,
+      killed: false,
+      query: "",
+      noteDraft: "",
+      parseTimer: null
+    };
 
-            reader.onload = function(e) {
-                const imgData = e.target.result;
-                const tempImg = new Image();
-                tempImg.onload = function() {
-                    mapImg.src = imgData;
+    const els = {
+      syncStatus: document.getElementById("syncStatus"),
+      dropZone: document.getElementById("dropZone"),
+      chooseFile: document.getElementById("chooseFile"),
+      fileInput: document.getElementById("fileInput"),
+      progressWrap: document.getElementById("progressWrap"),
+      progressBar: document.getElementById("progressBar"),
+      parseStep: document.getElementById("parseStep"),
+      parsePct: document.getElementById("parsePct"),
+      personSelect: document.getElementById("personSelect"),
+      unitSelect: document.getElementById("unitSelect"),
+      demoButton: document.getElementById("demoButton"),
+      editButton: document.getElementById("editButton"),
+      notifyButton: document.getElementById("notifyButton"),
+      dayMeta: document.getElementById("dayMeta"),
+      productionTitle: document.getElementById("productionTitle"),
+      weatherTemp: document.getElementById("weatherTemp"),
+      weatherLabel: document.getElementById("weatherLabel"),
+      dayStrip: document.getElementById("dayStrip"),
+      phoneScroll: document.getElementById("phoneScroll"),
+      phone: document.getElementById("phone"),
+      watermarkText: document.getElementById("watermarkText"),
+      editState: document.getElementById("editState"),
+      metricCrew: document.getElementById("metricCrew"),
+      metricLocations: document.getElementById("metricLocations"),
+      metricScenes: document.getElementById("metricScenes"),
+      metricWrap: document.getElementById("metricWrap"),
+      searchBox: document.getElementById("searchBox"),
+      searchResults: document.getElementById("searchResults"),
+      stealthToggle: document.getElementById("stealthToggle"),
+      shareButton: document.getElementById("shareButton"),
+      killButton: document.getElementById("killButton"),
+      approvalList: document.getElementById("approvalList"),
+      frequencyList: document.getElementById("frequencyList"),
+      toast: document.getElementById("toast")
+    };
 
-                    setTimeout(() => {
-                        const rect = viewport.getBoundingClientRect();
-                        canvas.width = tempImg.naturalWidth;
-                        canvas.height = tempImg.naturalHeight;
+    function loadSheet() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        return raw ? JSON.parse(raw) : structuredClone(demoSheet);
+      } catch (error) {
+        return structuredClone(demoSheet);
+      }
+    }
 
-                        const scaleW = rect.width / tempImg.naturalWidth;
-                        const scaleH = rect.height / tempImg.naturalHeight;
-                        STATE.scale = Math.max(scaleW, scaleH);
+    function saveSheet() {
+      localStorage.setItem(storageKey, JSON.stringify(state.sheet));
+    }
 
-                        STATE.posX = (rect.width - tempImg.naturalWidth * STATE.scale) / 2;
-                        STATE.posY = (rect.height - tempImg.naturalHeight * STATE.scale) / 2;
+    function currentDay() {
+      return state.sheet.days[state.activeDay];
+    }
 
-                        STATE.points = [];
-                        STATE.currentTrackerPos = null;
-                        STATE.fixedPoint = null;
-                        STATE.showPoint = false;
-                        resetPointPlacement();
+    function currentPerson() {
+      return state.sheet.people.find((person) => person.id === state.personId) || state.sheet.people[0];
+    }
 
-                        applyTransform();
-                        updateThemeColors();
-                        drawMap();
-                        checkReadyState();
-                    }, 80);
-                };
-                tempImg.src = imgData;
-            };
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
+    function filteredSchedule(day = currentDay()) {
+      if (state.unit === "All Units") return day.schedule;
+      return day.schedule.filter((item) => item.unit === state.unit || item.unit === "All Units");
+    }
+
+    function minutes(time) {
+      const parts = time.split(":").map(Number);
+      return parts[0] * 60 + parts[1];
+    }
+
+    function nowMinutesFor(day) {
+      const start = minutes(day.call);
+      const end = minutes(day.wrap);
+      const span = Math.max(end - start, 1);
+      const loop = Math.floor((Date.now() / 60000) % span);
+      return start + loop;
+    }
+
+    function statusFor(item, now) {
+      if (now >= minutes(item.end)) return "done";
+      if (now >= minutes(item.time) && now < minutes(item.end)) return "current";
+      return "upcoming";
+    }
+
+    function nowItem(day) {
+      const now = nowMinutesFor(day);
+      const schedule = filteredSchedule(day);
+      return schedule.find((item) => statusFor(item, now) === "current") || schedule.find((item) => statusFor(item, now) === "upcoming") || schedule[schedule.length - 1];
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function render() {
+      const day = currentDay();
+      const person = currentPerson();
+      els.syncStatus.textContent = state.killed ? "Share access revoked" : "Synced and available offline";
+      els.dayMeta.textContent = `${day.label} of ${state.sheet.days.length} - ${day.date}`;
+      els.productionTitle.textContent = state.sheet.production;
+      els.weatherTemp.textContent = day.weather.temp;
+      els.weatherLabel.textContent = `${day.weather.label} - ${day.weather.wind}`;
+      els.watermarkText.textContent = `${person.name} - ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      els.phone.classList.toggle("stealth", state.stealth);
+      els.editButton.textContent = state.editMode ? "Done editing" : "Edit any row";
+      els.editState.textContent = state.editMode ? "Edit mode" : "View mode";
+      els.stealthToggle.classList.toggle("on", state.stealth);
+
+      renderSelectors();
+      renderDayStrip();
+      renderPhoneTab();
+      renderMetrics();
+      renderSearch();
+      renderApprovals();
+      renderFrequencies();
+      saveSheet();
+    }
+
+    function renderSelectors() {
+      const personOptions = state.sheet.people.map((person) => {
+        const selected = person.id === state.personId ? "selected" : "";
+        return `<option value="${escapeHtml(person.id)}" ${selected}>${escapeHtml(person.name)} - ${escapeHtml(person.role)}</option>`;
+      }).join("");
+      if (els.personSelect.innerHTML !== personOptions) els.personSelect.innerHTML = personOptions;
+
+      const units = ["All Units", ...new Set(state.sheet.days.flatMap((day) => day.schedule.map((item) => item.unit)).filter(Boolean))];
+      if (!units.includes(state.unit)) state.unit = "All Units";
+      const unitOptions = units.map((unit) => `<option value="${escapeHtml(unit)}" ${unit === state.unit ? "selected" : ""}>${escapeHtml(unit)}</option>`).join("");
+      if (els.unitSelect.innerHTML !== unitOptions) els.unitSelect.innerHTML = unitOptions;
+    }
+
+    function renderDayStrip() {
+      els.dayStrip.innerHTML = state.sheet.days.map((day, index) => `
+        <button class="day-chip ${index === state.activeDay ? "active" : ""}" data-day="${index}" type="button">
+          <strong>${escapeHtml(day.label)}</strong>
+          <span>${escapeHtml(day.date)} - ${escapeHtml(day.call)}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderPhoneTab() {
+      const tabRenderers = {
+        day: renderDayTab,
+        search: renderSearchTab,
+        share: renderShareTab,
+        notes: renderNotesTab,
+        log: renderLogTab
+      };
+      els.phoneScroll.innerHTML = tabRenderers[state.tab]();
+      document.querySelectorAll(".nav-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === state.tab);
+      });
+    }
+
+    function renderDayTab() {
+      const day = currentDay();
+      const person = currentPerson();
+      const item = nowItem(day);
+      const callContext = nowMinutesFor(day) < minutes(person.call)
+        ? `Your call is ${person.call}. General crew call is ${day.call}.`
+        : `${item.time}-${item.end} - ${item.unit}`;
+      return `
+        <section class="now-card">
+          <span class="eyebrow">What you need right now</span>
+          <h2>${escapeHtml(nowMinutesFor(day) < minutes(person.call) ? "Your call time" : item.title)}</h2>
+          <p>${escapeHtml(callContext)} ${escapeHtml(nowMinutesFor(day) < minutes(person.call) ? `Tomorrow: ${day.tomorrow}.` : item.detail)}</p>
+          <div class="quick-actions">
+            <a class="action-tile" href="tel:${escapeHtml(person.phone)}">Call ${escapeHtml(person.name.split(" ")[0])}<span>${escapeHtml(person.role)}</span></a>
+            <a class="action-tile" target="_blank" rel="noreferrer" href="${escapeHtml(day.locations[0].maps)}">Navigate<span>${escapeHtml(day.locations[0].name)}</span></a>
+          </div>
+        </section>
+        <details class="section" open>
+          <summary>Live schedule <span class="count">${filteredSchedule(day).length}</span></summary>
+          <div class="section-body timeline">
+            ${filteredSchedule(day).map((entry, index) => renderScheduleEntry(entry, index)).join("")}
+          </div>
+        </details>
+        <details class="section">
+          <summary>Crew and cast <span class="count">${state.sheet.people.length}</span></summary>
+          <div class="section-body">
+            ${state.sheet.people.map((crew, index) => renderCrewEntry(crew, index)).join("")}
+          </div>
+        </details>
+        <details class="section">
+          <summary>Locations and parking <span class="count">${day.locations.length}</span></summary>
+          <div class="section-body">
+            ${day.locations.map((location, index) => renderLocationEntry(location, index)).join("")}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderScheduleEntry(entry, index) {
+      const cls = statusFor(entry, nowMinutesFor(currentDay()));
+      return `
+        <div class="row-card timeline-item ${cls} ${state.editMode ? "editable" : ""}" data-edit="schedule" data-index="${index}">
+          <div class="row-top">
+            <div>
+              <h3>${escapeHtml(entry.title)}</h3>
+              <p>${escapeHtml(entry.detail)}</p>
+            </div>
+            <div class="time">${escapeHtml(entry.time)}</div>
+          </div>
+          <div class="mini-actions">
+            <span class="mini">Scene ${escapeHtml(entry.scene)}</span>
+            <span class="mini">${escapeHtml(entry.unit)}</span>
+            <span class="mini">Ends ${escapeHtml(entry.end)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCrewEntry(crew, index) {
+      return `
+        <div class="row-card ${state.editMode ? "editable" : ""}" data-edit="crew" data-index="${index}">
+          <div class="row-top">
+            <div>
+              <h3>${escapeHtml(crew.name)}</h3>
+              <p>${escapeHtml(crew.role)} - ${escapeHtml(crew.department)} - Call ${escapeHtml(crew.call)}</p>
+            </div>
+          </div>
+          <div class="mini-actions">
+            <a class="mini" href="tel:${escapeHtml(crew.phone)}">Call</a>
+            <a class="mini" href="sms:${escapeHtml(crew.phone)}">Message</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLocationEntry(location, index) {
+      return `
+        <div class="row-card ${state.editMode ? "editable" : ""}" data-edit="location" data-index="${index}">
+          <div class="row-top">
+            <div>
+              <h3>${escapeHtml(location.name)}</h3>
+              <p>${escapeHtml(location.address)}</p>
+              <p>${escapeHtml(location.parking)}</p>
+            </div>
+          </div>
+          <div class="mini-actions">
+            <a class="mini" target="_blank" rel="noreferrer" href="${escapeHtml(location.maps)}">Open maps</a>
+            <button class="mini" data-copy="${escapeHtml(location.address)}" type="button">Copy address</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSearchTab() {
+      return `
+        <section class="now-card">
+          <span class="eyebrow">AI search</span>
+          <h2>Ask the call sheet</h2>
+          <p>Search scenes, crew, parking, wireless frequencies, and your private notes across every production day.</p>
+        </section>
+        <details class="section" open>
+          <summary>Try these <span class="count">4</span></summary>
+          <div class="section-body">
+            ${["who is the gaffer", "hospital scene", "parking", "boom frequency"].map((query) => `
+              <button class="row-card" data-query="${escapeHtml(query)}" type="button"><h3>${escapeHtml(query)}</h3><p>Tap to run this search.</p></button>
+            `).join("")}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderShareTab() {
+      return `
+        <section class="now-card">
+          <span class="eyebrow">${state.stealth ? "Stealth share" : "Crew share"}</span>
+          <h2>${state.killed ? "Access revoked" : `Code ${escapeHtml(state.sheet.shareCode)}`}</h2>
+          <p>${state.stealth ? "Every viewer accepts the NDA, is approved by name, and sees a forensic watermark." : "Crew can open this call sheet with one tap. Edits sync live."}</p>
+          <div class="quick-actions">
+            <button class="action-tile" data-action="copy-share" type="button">Copy link<span>callsheet.link/${escapeHtml(state.sheet.shareCode)}</span></button>
+            <button class="action-tile" data-action="notify" type="button">Notify crew<span>Push latest changes</span></button>
+          </div>
+        </section>
+        <details class="section" open>
+          <summary>QR code <span class="count">Share</span></summary>
+          <div class="section-body">
+            <div class="qr" aria-label="Demo QR code">${Array.from({ length: 49 }, () => "<i></i>").join("")}</div>
+          </div>
+        </details>
+      `;
+    }
+
+    function renderNotesTab() {
+      const day = currentDay();
+      return `
+        <section class="now-card">
+          <span class="eyebrow">Private notes</span>
+          <h2>${day.notes.length} notes today</h2>
+          <p>Only you see these. Add lens choices, takes, parking tips, or invoice reminders and export them later.</p>
+        </section>
+        <details class="section" open>
+          <summary>Add note <span class="count">Private</span></summary>
+          <div class="section-body">
+            <textarea id="noteDraft" placeholder="Write a note for ${escapeHtml(day.label)}">${escapeHtml(state.noteDraft)}</textarea>
+            <button class="primary" data-action="add-note" type="button">Add private note</button>
+          </div>
+        </details>
+        <details class="section" open>
+          <summary>Notes <span class="count">${day.notes.length}</span></summary>
+          <div class="section-body">
+            ${day.notes.length ? day.notes.map((note) => `<div class="row-card"><h3>${escapeHtml(note.at)}</h3><p>${escapeHtml(note.body)}</p></div>`).join("") : `<div class="row-card"><h3>No notes yet</h3><p>Anything you add here stays private.</p></div>`}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderLogTab() {
+      const day = currentDay();
+      const person = currentPerson();
+      return `
+        <section class="now-card">
+          <span class="eyebrow">Day log</span>
+          <h2>${escapeHtml(day.call)} - ${escapeHtml(day.wrap)}</h2>
+          <p>Tracks hours, kilometers, notes, and production details for a branded invoice-ready export.</p>
+          <div class="quick-actions">
+            <button class="action-tile" data-action="export-log" type="button">Export log<span>Text/PDF-ready</span></button>
+            <button class="action-tile" data-action="copy-invoice" type="button">Invoice detail<span>${escapeHtml(person.role)}</span></button>
+          </div>
+        </section>
+        <details class="section" open>
+          <summary>Summary <span class="count">${escapeHtml(day.label)}</span></summary>
+          <div class="section-body">
+            <div class="row-card"><h3>Worked hours</h3><p>${escapeHtml(day.call)} crew call to ${escapeHtml(day.wrap)} estimated wrap.</p></div>
+            <div class="row-card"><h3>Kilometers</h3><p>18 km estimated between ${escapeHtml(day.locations.map((location) => location.name).join(", "))}.</p></div>
+            <div class="row-card"><h3>Tomorrow</h3><p>${escapeHtml(day.tomorrow)}</p></div>
+          </div>
+        </details>
+      `;
+    }
+
+    function renderMetrics() {
+      const day = currentDay();
+      els.metricCrew.textContent = state.sheet.people.length;
+      els.metricLocations.textContent = day.locations.length;
+      els.metricScenes.textContent = filteredSchedule(day).length;
+      els.metricWrap.textContent = day.wrap;
+    }
+
+    function allSearchRows() {
+      const rows = [];
+      state.sheet.people.forEach((person) => rows.push({ type: "Crew", title: `${person.name} - ${person.role}`, body: `${person.department} ${person.phone} call ${person.call}` }));
+      state.sheet.days.forEach((day) => {
+        day.locations.forEach((location) => rows.push({ type: day.label, title: location.name, body: `${location.address} ${location.parking}` }));
+        day.schedule.forEach((item) => rows.push({ type: day.label, title: item.title, body: `${item.detail} ${item.scene} ${item.unit} ${item.time}` }));
+        day.notes.forEach((note) => rows.push({ type: `${day.label} note`, title: note.at, body: note.body }));
+        day.frequencies.forEach((freq) => rows.push({ type: "Frequency", title: `${freq.label} - ${freq.value}`, body: freq.owner }));
+      });
+      return rows;
+    }
+
+    function renderSearch() {
+      const query = state.query.trim().toLowerCase();
+      const rows = allSearchRows();
+      const results = query
+        ? rows.filter((row) => `${row.type} ${row.title} ${row.body}`.toLowerCase().includes(query)).slice(0, 8)
+        : rows.slice(0, 4);
+      els.searchResults.innerHTML = results.map((row) => `
+        <div class="result-row">
+          <div><strong>${escapeHtml(row.title)}</strong><br><span>${escapeHtml(row.type)} - ${escapeHtml(row.body)}</span></div>
+        </div>
+      `).join("") || `<div class="result-row"><div><strong>No results</strong><br><span>Try a role, scene number, location, or frequency.</span></div></div>`;
+    }
+
+    function renderApprovals() {
+      els.approvalList.innerHTML = state.sheet.approvals.map((approval) => `
+        <div class="approval-row">
+          <div><strong>${escapeHtml(approval.name)}</strong><br><span>${escapeHtml(approval.seen)}</span></div>
+          <span>${escapeHtml(approval.status)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderFrequencies() {
+      els.frequencyList.innerHTML = currentDay().frequencies.map((freq, index) => `
+        <div class="freq-row ${state.editMode ? "editable" : ""}" data-edit="frequency" data-index="${index}">
+          <div><strong>${escapeHtml(freq.label)}</strong><br><span>${escapeHtml(freq.owner)}</span></div>
+          <strong>${escapeHtml(freq.value)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function simulateParse(fileName) {
+      clearInterval(state.parseTimer);
+      const steps = ["Uploading", "Reading document", "Extracting crew", "Finding locations", "Building day screen", "Ready"];
+      let progress = 0;
+      els.progressWrap.style.display = "block";
+      els.progressBar.style.width = "0%";
+      els.parsePct.textContent = "0%";
+      els.parseStep.textContent = steps[0];
+      showToast("Parsing continues in the background. You can close the app.");
+
+      state.parseTimer = setInterval(() => {
+        progress += 17 + Math.round(Math.random() * 8);
+        const pct = Math.min(progress, 100);
+        const stepIndex = Math.min(Math.floor((pct / 100) * steps.length), steps.length - 1);
+        els.progressBar.style.width = `${pct}%`;
+        els.parsePct.textContent = `${pct}%`;
+        els.parseStep.textContent = steps[stepIndex];
+        if (pct >= 100) {
+          clearInterval(state.parseTimer);
+          const parsed = structuredClone(demoSheet);
+          parsed.production = fileName.replace(/\.[^.]+$/, "") || "Parsed Production";
+          parsed.shareCode = `CS-${Math.floor(1000 + Math.random() * 8999)}`;
+          state.sheet = parsed;
+          state.activeDay = 0;
+          state.tab = "day";
+          showToast("Call sheet ready. Crew, locations, scenes, and notes extracted.");
+          render();
         }
+      }, 420);
+    }
 
-        function handleDestUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                STATE.destImg = e.target.result;
-                setDest('img');
-            };
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 2600);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Copied to clipboard.");
+      } catch (error) {
+        showToast(text);
+      }
+    }
+
+    function exportLog() {
+      const day = currentDay();
+      const person = currentPerson();
+      const body = [
+        `${state.sheet.production} - ${day.label} Day Log`,
+        `Person: ${person.name} (${person.role})`,
+        `Worked: ${day.call} to ${day.wrap}`,
+        `Locations: ${day.locations.map((location) => location.name).join(", ")}`,
+        "",
+        "Schedule:",
+        ...day.schedule.map((item) => `- ${item.time}-${item.end} ${item.title} (${item.scene})`),
+        "",
+        "Notes:",
+        ...(day.notes.length ? day.notes.map((note) => `- ${note.at}: ${note.body}`) : ["- No private notes"])
+      ].join("\n");
+      const blob = new Blob([body], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${state.sheet.production.replace(/\W+/g, "-").toLowerCase()}-${day.label.toLowerCase()}-day-log.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Day log exported.");
+    }
+
+    function editRow(kind, index) {
+      if (!state.editMode) return;
+      const day = currentDay();
+      if (kind === "schedule") {
+        const item = filteredSchedule(day)[index];
+        const originalIndex = day.schedule.indexOf(item);
+        const title = prompt("Schedule title", item.title);
+        if (title !== null) day.schedule[originalIndex].title = title.trim() || item.title;
+        const time = prompt("Start time", item.time);
+        if (time !== null) day.schedule[originalIndex].time = time.trim() || item.time;
+      }
+      if (kind === "crew") {
+        const crew = state.sheet.people[index];
+        const call = prompt(`Call time for ${crew.name}`, crew.call);
+        if (call !== null) crew.call = call.trim() || crew.call;
+      }
+      if (kind === "location") {
+        const location = day.locations[index];
+        const address = prompt(`Address for ${location.name}`, location.address);
+        if (address !== null) {
+          location.address = address.trim() || location.address;
+          location.maps = `https://maps.google.com/?q=${encodeURIComponent(location.address)}`;
         }
+      }
+      if (kind === "frequency") {
+        const freq = day.frequencies[index];
+        const value = prompt(`Frequency for ${freq.label}`, freq.value);
+        if (value !== null) freq.value = value.trim() || freq.value;
+      }
+      showToast("Field updated and synced.");
+      render();
+    }
 
-        function handleProfileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                STATE.profileImg = e.target.result;
-                const imgHTML = `<img src="${STATE.profileImg}" class="w-full h-full object-cover">`;
-                
-                document.getElementById('profile-preview-circle').innerHTML = imgHTML;
-                document.getElementById('watcher-avatar-img').innerHTML = imgHTML;
-                
-                const shieldIcon = document.getElementById('shield-icon-circle');
-                shieldIcon.innerHTML = imgHTML;
-                shieldIcon.classList.remove('text-zinc-500');
-            };
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
+    els.chooseFile.addEventListener("click", () => els.fileInput.click());
+    els.fileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) simulateParse(file.name);
+      event.target.value = "";
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      els.dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        els.dropZone.classList.add("dragging");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      els.dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        els.dropZone.classList.remove("dragging");
+      });
+    });
+
+    els.dropZone.addEventListener("drop", (event) => {
+      const file = event.dataTransfer.files[0];
+      if (file) simulateParse(file.name);
+    });
+
+    els.demoButton.addEventListener("click", () => {
+      state.sheet = structuredClone(demoSheet);
+      state.activeDay = 0;
+      state.tab = "day";
+      showToast("Demo production loaded.");
+      render();
+    });
+
+    els.personSelect.addEventListener("change", (event) => {
+      state.personId = event.target.value;
+      render();
+    });
+
+    els.unitSelect.addEventListener("change", (event) => {
+      state.unit = event.target.value;
+      render();
+    });
+
+    els.editButton.addEventListener("click", () => {
+      state.editMode = !state.editMode;
+      showToast(state.editMode ? "Tap a highlighted row to edit it." : "Editing finished.");
+      render();
+    });
+
+    els.notifyButton.addEventListener("click", () => showToast("Crew notified about the latest call sheet changes."));
+    els.stealthToggle.addEventListener("click", () => {
+      state.stealth = !state.stealth;
+      showToast(state.stealth ? "Stealth mode enabled." : "Stealth mode disabled.");
+      render();
+    });
+    els.shareButton.addEventListener("click", () => copyText(`https://callsheet.link/${state.sheet.shareCode}`));
+    els.killButton.addEventListener("click", () => {
+      state.killed = true;
+      showToast("All share access revoked.");
+      render();
+    });
+
+    els.searchBox.addEventListener("input", (event) => {
+      state.query = event.target.value;
+      renderSearch();
+    });
+
+    document.addEventListener("click", (event) => {
+      const dayButton = event.target.closest("[data-day]");
+      if (dayButton) {
+        state.activeDay = Number(dayButton.dataset.day);
+        state.tab = "day";
+        render();
+      }
+
+      const tabButton = event.target.closest("[data-tab]");
+      if (tabButton) {
+        state.tab = tabButton.dataset.tab;
+        render();
+      }
+
+      const editable = event.target.closest("[data-edit]");
+      if (editable) editRow(editable.dataset.edit, Number(editable.dataset.index));
+
+      const copy = event.target.closest("[data-copy]");
+      if (copy) copyText(copy.dataset.copy);
+
+      const query = event.target.closest("[data-query]");
+      if (query) {
+        state.query = query.dataset.query;
+        els.searchBox.value = state.query;
+        state.tab = "search";
+        render();
+      }
+
+      const action = event.target.closest("[data-action]");
+      if (action) {
+        const type = action.dataset.action;
+        if (type === "copy-share") copyText(`https://callsheet.link/${state.sheet.shareCode}`);
+        if (type === "notify") showToast("Crew notified about the latest change.");
+        if (type === "export-log") exportLog();
+        if (type === "copy-invoice") copyText(`${currentPerson().name}, ${currentPerson().role}, ${currentDay().call}-${currentDay().wrap}`);
+        if (type === "add-note") {
+          const draft = document.getElementById("noteDraft").value.trim();
+          if (!draft) return showToast("Write a note first.");
+          currentDay().notes.unshift({ at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), body: draft });
+          state.noteDraft = "";
+          showToast("Private note saved.");
+          render();
         }
+      }
+    });
 
-        function resetPointPlacement() {
-            STATE.pointReady = false;
-            pointCheckbox.disabled = true;
-            pointCheckbox.checked = false;
-            pointCheckbox.classList.add('cursor-not-allowed');
-            pointLabel.classList.replace('text-zinc-400', 'text-zinc-600');
-            crosshair.classList.remove('active');
-            STATE.fixedPoint = null;
-            drawMap();
-            checkReadyState();
-        }
+    document.addEventListener("input", (event) => {
+      if (event.target.id === "noteDraft") state.noteDraft = event.target.value;
+    });
 
-        function enablePointPlacement() {
-            STATE.pointReady = true;
-            pointCheckbox.disabled = false;
-            pointCheckbox.classList.remove('cursor-not-allowed');
-            pointLabel.classList.replace('text-zinc-600', 'text-zinc-400');
-            crosshair.classList.add('active');
-        }
+    window.addEventListener("online", () => {
+      els.syncStatus.textContent = "Online - syncing edits";
+      showToast("Back online. Syncing local edits.");
+    });
 
-        viewport.addEventListener('touchstart', (e) => {
-            if (STATE.isPlayingPreview || STATE.isLive) return;
-            if (e.touches.length === 2) {
-                isDragging = false;
-                initialPinchDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-            } else if (e.touches.length === 1) {
-                startInteraction(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        }, { passive: false });
+    window.addEventListener("offline", () => {
+      els.syncStatus.textContent = "Offline - local copy active";
+      showToast("Offline copy active.");
+    });
 
-        window.addEventListener('touchmove', (e) => {
-            if (STATE.isPlayingPreview || STATE.isLive) return;
-            if (e.touches.length === 2 && initialPinchDist !== null) {
-                if(STATE.showPoint) return;
-                const currentDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                const zoomFactor = (currentDist - initialPinchDist) / 150;
-                changeZoom(zoomFactor);
-                initialPinchDist = currentDist;
-                resetPointPlacement();
-            } else if (e.touches.length === 1) {
-                moveInteraction(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        }, { passive: false });
-
-        window.addEventListener('touchend', () => {
-            if (!hasMovedSinceStart && isDragging) enablePointPlacement();
-            isDragging = false;
-            initialPinchDist = null;
-        });
-
-        viewport.addEventListener('mousedown', (e) => {
-            startInteraction(e.clientX, e.clientY);
-        });
-        window.addEventListener('mousemove', (e) => {
-            moveInteraction(e.clientX, e.clientY);
-        });
-        window.addEventListener('mouseup', () => {
-            if (!hasMovedSinceStart && isDragging) enablePointPlacement();
-            isDragging = false;
-        });
-
-        function startInteraction(x, y) {
-            isDragging = true;
-            hasMovedSinceStart = false;
-            startX = x - STATE.posX;
-            startY = y - STATE.posY;
-
-            if (STATE.tool === 'pan' && !STATE.showPoint) {
-                viewport.style.cursor = 'grabbing';
-            } else if (STATE.tool === 'route') {
-                const mapCoords = getMapCoords(x, y);
-                STATE.points.push(mapCoords);
-                drawMap();
-                checkReadyState();
-            }
-        }
-
-        function moveInteraction(x, y) {
-            if (!isDragging) return;
-
-            const dx = Math.abs(x - (startX + STATE.posX));
-            const dy = Math.abs(y - (startY + STATE.posY));
-
-            if (dx > 4 || dy > 4) {
-                hasMovedSinceStart = true;
-                if (STATE.pointReady || STATE.showPoint) resetPointPlacement();
-            }
-
-            if (STATE.tool === 'pan' && !STATE.showPoint) {
-                STATE.posX = x - startX;
-                STATE.posY = y - startY;
-                applyTransform();
-            } else if (STATE.tool === 'route') {
-                const mapCoords = getMapCoords(x, y);
-                const lastP = STATE.points[STATE.points.length - 1];
-                if (lastP && Math.hypot(lastP.x - mapCoords.x, lastP.y - mapCoords.y) > 12 / STATE.scale) {
-                    STATE.points.push(mapCoords);
-                    drawMap();
-                    checkReadyState();
-                }
-            }
-        }
-
-        function togglePoint(checked) {
-            STATE.showPoint = checked;
-            if (checked) {
-                const rect = viewport.getBoundingClientRect();
-                STATE.fixedPoint = {
-                    x: (rect.width / 2 - STATE.posX) / STATE.scale,
-                    y: (rect.height / 2 - STATE.posY) / STATE.scale
-                };
-                viewport.style.cursor = 'not-allowed';
-            } else {
-                STATE.fixedPoint = null;
-                viewport.style.cursor = 'default';
-            }
-            drawMap();
-            checkReadyState();
-        }
-
-        function getMapCoords(clientX, clientY) {
-            const rect = mapWrapper.getBoundingClientRect();
-            return { x: (clientX - rect.left) / STATE.scale, y: (clientY - rect.top) / STATE.scale };
-        }
-
-        function applyTransform() {
-            mapWrapper.style.transform = `translate3d(${STATE.posX}px, ${STATE.posY}px, 0) scale(${STATE.scale})`;
-        }
-
-        function changeZoom(delta) {
-            if(STATE.showPoint) return;
-            const oldScale = STATE.scale;
-            STATE.scale = Math.max(0.02, Math.min(10, STATE.scale + delta));
-            const ratio = STATE.scale / oldScale;
-            const rect = viewport.getBoundingClientRect();
-
-            STATE.posX = (rect.width / 2) - ((rect.width / 2) - STATE.posX) * ratio;
-            STATE.posY = (rect.height / 2) - ((rect.height / 2) - STATE.posY) * ratio;
-
-            resetPointPlacement();
-            applyTransform();
-            drawMap();
-        }
-
-        function setTool(tool) {
-            STATE.tool = tool;
-            document.getElementById('tool-select').value = tool;
-            viewport.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
-        }
-
-        function updateMode() {
-            const isShield = document.getElementById('app-mode').value === 'shield';
-            STATE.mode = document.getElementById('app-mode').value;
-
-            document.getElementById('dest-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('speed-config').style.visibility = isShield ? 'hidden' : 'visible';
-            document.getElementById('watcher-extra-config').style.display = isShield ? 'none' : 'grid';
-            document.getElementById('opt-route').style.display = isShield ? 'none' : 'block';
-
-            if (isShield && STATE.tool === 'route') setTool('pan');
-            updateThemeColors();
-            drawMap();
-        }
-
-        function updatePerson() {
-            STATE.person = document.getElementById('person-select').value;
-            updateThemeColors();
-            
-            if(STATE.isShieldActive) {
-                const iconCircle = document.getElementById('shield-icon-circle');
-                iconCircle.style.borderColor = COLORS[STATE.person];
-            }
-            drawMap();
-        }
-
-        function updateThemeColors() {
-            const color = COLORS[STATE.person];
-            document.documentElement.style.setProperty('--tracker-color', color);
-            document.documentElement.style.setProperty('--pointer-active', color);
-            document.documentElement.style.setProperty('--pointer-dimmed', color + '4d');
-            document.getElementById('btn-live').style.backgroundColor = color;
-        }
-
-        function updateSize(val) {
-            STATE.size = val;
-            document.documentElement.style.setProperty('--dot-size', `${val}px`);
-        }
-
-        function setDest(type) {
-            STATE.destType = type;
-            ['none', 'home'].forEach(t => {
-                const btn = document.getElementById(`btn-dest-${t}`);
-                if (btn) {
-                    btn.classList.toggle('border-white', t === type);
-                    btn.classList.toggle('text-white', t === type);
-                    btn.classList.toggle('border-transparent', t !== type);
-                }
-            });
-            drawMap();
-        }
-
-        function clearMap() {
-            STATE.points = [];
-            STATE.currentTrackerPos = null;
-            resetPointPlacement();
-            drawMap();
-        }
-        
-        function undoPoint() {
-            if (STATE.points.length > 0) {
-                STATE.points.pop();
-                drawMap();
-                checkReadyState();
-            }
-        }
-
-        function checkReadyState() {
-            const ok = STATE.fixedPoint !== null || STATE.points.length > 0;
-            document.getElementById('btn-preview').disabled = !ok;
-            document.getElementById('btn-live').disabled = !ok;
-        }
-
-        function drawMap() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const activePoint = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[STATE.points.length - 1] : null);
-            const shouldShowDot = activePoint && (!STATE.isLive || STATE.mode !== 'shield' || STATE.isShieldActive);
-
-            // Toon de lijn ALLEEN in configuratiemodus, verberg in Live/Preview
-            if (STATE.points.length > 1 && !STATE.isPlayingPreview && !STATE.isLive) {
-                ctx.beginPath();
-                ctx.strokeStyle = COLORS[STATE.person];
-                ctx.lineWidth = 6 / STATE.scale;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                
-                ctx.setLineDash([15 / STATE.scale, 10 / STATE.scale]);
-                ctx.moveTo(STATE.points[0].x, STATE.points[0].y);
-                STATE.points.forEach(p => ctx.lineTo(p.x, p.y));
-                ctx.stroke();
-            }
-
-            if (shouldShowDot) {
-                trackerDot.style.display = 'block';
-                if (STATE.isPlayingPreview || STATE.isLive) {
-                    // Gebruik in live/preview de specifieke tracker positie voor ultieme vloeiendheid
-                    const px = STATE.currentTrackerPos ? STATE.currentTrackerPos.x : activePoint.x;
-                    const py = STATE.currentTrackerPos ? STATE.currentTrackerPos.y : activePoint.y;
-                    trackerDot.style.left = px + 'px';
-                    trackerDot.style.top = py + 'px';
-                } else {
-                    trackerDot.style.left = activePoint.x + 'px';
-                    trackerDot.style.top = activePoint.y + 'px';
-                }
-            } else { trackerDot.style.display = 'none'; }
-
-            if (STATE.mode !== 'shield' && STATE.destType !== 'none' && activePoint) {
-                destMarker.style.display = 'block';
-                destMarker.style.left = activePoint.x + 'px';
-                destMarker.style.top = activePoint.y + 'px';
-                if (STATE.destType === 'home') {
-                    document.getElementById('dest-icon-container').innerHTML = '🏠';
-                } else if (STATE.destImg) {
-                    document.getElementById('dest-icon-container').innerHTML = `<img src="${STATE.destImg}">`;
-                }
-            } else {
-                destMarker.style.display = 'none';
-            }
-        }
-
-        function togglePreview() {
-            STATE.isPlayingPreview = true;
-            configContainer.classList.add('hidden-ui');
-            document.getElementById('center-crosshair').classList.add('hidden-ui');
-            enablePropOverlays();
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                updateShieldBottom(false);
-            } else { startAnimation(); }
-        }
-
-        function startLiveMode() {
-            STATE.isLive = true;
-            stopAnimation();
-            mainHeader.classList.add('hidden-ui');
-            configContainer.classList.add('hidden-ui');
-            document.getElementById('center-crosshair').classList.add('hidden-ui');
-            document.getElementById('zoom-ctrls').classList.add('hidden-ui');
-            enablePropOverlays();
-            if (STATE.mode === 'shield') {
-                document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-                document.getElementById('viewport').classList.add('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                updateShieldBottom(false);
-            } else {
-                mapImg.style.filter = 'saturate(1.2)';
-                startAnimation();
-            }
-        }
-
-        function activateShieldLive() {
-            STATE.isShieldActive = true;
-            document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            updateShieldBottom(true);
-            drawMap();
-            mapImg.style.filter = 'grayscale(0.4) contrast(1.2)';
-            startAnimation();
-        }
-
-        function deactivateShieldLive() {
-            STATE.isShieldActive = false;
-            document.getElementById('shield-standby-center').classList.remove('hidden-ui');
-            document.getElementById('viewport').classList.add('hidden-ui');
-            updateShieldBottom(false);
-            stopAnimation();
-            drawMap();
-        }
-
-        function updateShieldBottom(active) {
-            const title = document.getElementById('shield-status-title');
-            const uplink = document.getElementById('shield-uplink-status');
-            const stopBtn = document.getElementById('shield-stop-btn');
-            const iconCircle = document.getElementById('shield-icon-circle');
-
-            if (active) {
-                title.innerText = "Locatie Delen Actief";
-                title.className = "text-[11px] text-white font-black uppercase tracking-widest leading-tight";
-                uplink.innerText = "Uplink";
-                uplink.className = "text-[8px] text-green-500 font-bold uppercase animate-pulse tracking-widest";
-                stopBtn.classList.remove('hidden-ui');
-                if(!STATE.profileImg) iconCircle.style.color = COLORS[STATE.person];
-                iconCircle.style.borderColor = COLORS[STATE.person];
-            } else {
-                title.innerText = "Locatie Delen Uit";
-                title.className = "text-[11px] text-zinc-400 font-black uppercase tracking-widest leading-tight";
-                uplink.innerText = "Offline";
-                uplink.className = "text-[8px] text-zinc-500 font-bold uppercase tracking-widest";
-                stopBtn.classList.add('hidden-ui');
-                if(!STATE.profileImg) iconCircle.style.color = "#71717a";
-                iconCircle.style.borderColor = "#71717a";
-            }
-        }
-
-        function enablePropOverlays() {
-            document.getElementById('prop-top-bar').classList.remove('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.remove('hidden-ui');
-            if (STATE.mode === 'shield') {
-                document.getElementById('prop-bottom-shield').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            } else {
-                document.getElementById('prop-bottom-watcher').classList.remove('hidden-ui');
-                document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-                document.getElementById('watcher-name').innerText = STATE.person.charAt(0).toUpperCase() + STATE.person.slice(1);
-                document.getElementById('watcher-status').innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></span>${STATE.statusText}`;
-                document.getElementById('watcher-time').innerText = STATE.updateTime;
-            }
-        }
-
-        function resetToConfig() {
-            STATE.isLive = false; 
-            STATE.isPlayingPreview = false; 
-            STATE.isShieldActive = false; 
-            stopAnimation();
-            STATE.currentTrackerPos = null;
-            
-            mainHeader.classList.remove('hidden-ui'); 
-            configContainer.classList.remove('hidden-ui');
-            document.getElementById('prop-top-bar').classList.add('hidden-ui');
-            document.getElementById('prop-side-buttons').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-watcher').classList.add('hidden-ui');
-            document.getElementById('prop-bottom-shield').classList.add('hidden-ui');
-            document.getElementById('shield-standby-center').classList.add('hidden-ui');
-            document.getElementById('viewport').classList.remove('hidden-ui');
-            document.getElementById('zoom-ctrls').classList.remove('hidden-ui');
-            document.getElementById('center-crosshair').classList.remove('hidden-ui');
-            mapImg.style.filter = 'none';
-            drawMap();
-        }
-
-        function startAnimation() {
-            STATE.animProgress = 0; 
-            STATE.targetIndex = 1; 
-            STATE.lastTime = performance.now();
-            STATE.currentTrackerPos = STATE.points.length > 0 ? { ...STATE.points[0] } : null;
-            
-            const p = STATE.fixedPoint || (STATE.points.length > 0 ? STATE.points[0] : null);
-            if (STATE.mode === 'shield' || STATE.points.length < 2) {
-                if (p) { updateTrackerLive(p.x, p.y); }
-            } else { STATE.animId = requestAnimationFrame(animLoop); }
-        }
-
-        function stopAnimation() {
-            if (STATE.animId) cancelAnimationFrame(STATE.animId);
-            drawMap();
-        }
-
-        function animLoop(timestamp) {
-            if (!STATE.isPlayingPreview && !STATE.isLive) return;
-            
-            // Beperk delta tot max 0.1s (100ms) om gigantische sprongen te voorkomen bij haperingen
-            const delta = Math.min((timestamp - STATE.lastTime) / 1000, 0.1); 
-            STATE.lastTime = timestamp;
-
-            if (STATE.points.length < 2) return;
-
-            let moveAmount = STATE.speed * delta;
-            
-            // Loop door de route heen op basis van de absolute afgelegde afstand per frame.
-            while (moveAmount > 0 && STATE.targetIndex < STATE.points.length) {
-                let p1 = STATE.points[STATE.targetIndex - 1];
-                let p2 = STATE.points[STATE.targetIndex];
-                let dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-                
-                let distRemaining = dist * (1 - STATE.animProgress);
-                
-                if (moveAmount >= distRemaining) {
-                    moveAmount -= distRemaining;
-                    STATE.animProgress = 0;
-                    STATE.targetIndex++;
-                } else {
-                    STATE.animProgress += moveAmount / dist;
-                    moveAmount = 0; // Opgemaakt
-                }
-            }
-
-            // Loop reset: Begin opnieuw!
-            if (STATE.targetIndex >= STATE.points.length) {
-                STATE.targetIndex = 1;
-                STATE.animProgress = 0;
-                STATE.currentTrackerPos = { ...STATE.points[0] };
-            } else {
-                let p1 = STATE.points[STATE.targetIndex - 1];
-                let p2 = STATE.points[STATE.targetIndex];
-                STATE.currentTrackerPos = {
-                    x: p1.x + (p2.x - p1.x) * STATE.animProgress,
-                    y: p1.y + (p2.y - p1.y) * STATE.animProgress
-                };
-            }
-
-            updateTrackerLive(STATE.currentTrackerPos.x, STATE.currentTrackerPos.y);
-            
-            // Herteken de map (hier wordt alleen nog het bolletje geüpdatet, lijnen zijn uit in deze modus)
-            drawMap();
-            
-            STATE.animId = requestAnimationFrame(animLoop);
-        }
-
-        function updateTrackerLive(x, y) {
-            if (STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive)) {
-                const rect = viewport.getBoundingClientRect();
-                const targetX = (rect.width / 2) - (x * STATE.scale); 
-                const targetY = (rect.height / 2) - (y * STATE.scale);
-                
-                STATE.posX += (targetX - STATE.posX) * 0.08;
-                STATE.posY += (targetY - STATE.posY) * 0.08;
-                
-                applyTransform();
-            }
-        }
-
-        const resizeObs = new ResizeObserver(entries => {
-            for(let entry of entries) {
-                const nw = entry.contentRect.width, nh = entry.contentRect.height;
-                if (lastViewportW > 0 && lastViewportH > 0 && nw > 0) {
-                    if (!(STATE.autoCenter && (STATE.isPlayingPreview || STATE.isLive) && STATE.points.length > 1)) {
-                        const cx = (lastViewportW / 2 - STATE.posX) / STATE.scale, cy = (lastViewportH / 2 - STATE.posY) / STATE.scale;
-                        STATE.posX = (nw / 2) - (cx * STATE.scale); STATE.posY = (nh / 2) - (cy * STATE.scale);
-                        applyTransform();
-                    }
-                }
-                lastViewportW = nw; lastViewportH = nh;
-            }
-        });
-        let lastViewportW = 0, lastViewportH = 0; resizeObs.observe(viewport);
-
-        // Initial setup
-        updateThemeColors();
-    </script>
+    render();
+    window.setInterval(() => {
+      if (state.tab === "day") renderPhoneTab();
+    }, 60000);
+  </script>
 </body>
 </html>
